@@ -1,6 +1,7 @@
 """API backend for the split Institution/Class Management application.
 
 Run with: uvicorn backend:app --host 0.0.0.0 --port ${PORT:-8001}
+ភ្ជាប់ជាមួយ Supabase Cloud Database ដោយស្វ័យប្រវត្តិ
 """
 from __future__ import annotations
 
@@ -21,6 +22,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response
 from cryptography.fernet import Fernet, InvalidToken
+
+from db_supabase import load_data, save_data, is_supabase_enabled
 
 import class_manager as class_manager_module
 from class_manager import (
@@ -164,6 +167,15 @@ def is_secure_request(request: Request) -> bool:
 
 
 def load_db() -> list[dict]:
+    """Load institutions from Supabase first, fallback to local JSON with auto-migration"""
+    if is_supabase_enabled():
+        data = load_data("institutions", default=None)
+        if data is not None and isinstance(data, list):
+            for item in data:
+                item.pop("management_link", None)
+                item.pop("details", None)
+            return data
+
     if not DB_FILE.exists():
         return []
     try:
@@ -173,15 +185,27 @@ def load_db() -> list[dict]:
         for item in data:
             item.pop("management_link", None)
             item.pop("details", None)
+            
+        # Auto-migrate local JSON file to Supabase Cloud!
+        if is_supabase_enabled() and data:
+            save_data("institutions", data)
+            
         return data
     except (json.JSONDecodeError, OSError):
         return []
 
 
 def save_db() -> None:
-    tmp = DB_FILE.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(institutions_db, ensure_ascii=False, indent=2), encoding="utf-8")
-    tmp.replace(DB_FILE)
+    """Save institutions to Supabase and keep a local file copy"""
+    if is_supabase_enabled():
+        save_data("institutions", institutions_db)
+
+    try:
+        tmp = DB_FILE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(institutions_db, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(DB_FILE)
+    except Exception:
+        pass
 
 
 def create_session(user: str) -> str:
@@ -241,7 +265,6 @@ def get_institution_by_username(username: str) -> dict | None:
 
 
 def enrich_institution(inst: dict, base_url: str = "") -> dict:
-    """Enrich institution with decrypted password and relative paths for dynamic origin."""
     enriched = inst.copy()
     encrypted_password = enriched.pop("inst_password_encrypted", None)
     if encrypted_password:
@@ -250,7 +273,6 @@ def enrich_institution(inst: dict, base_url: str = "") -> dict:
         enriched["inst_password"] = ""
     username = inst.get("inst_username", "")
     
-    # ប្រើប្រាស់ Relative Paths ដើម្បីឱ្យ Browser យក Domain បច្ចុប្បន្នជានិច្ច
     enriched["management_link"] = f"/manage/{username}"
     enriched["public_dashboard_link"] = f"/public/{username}"
     return enriched
@@ -330,7 +352,7 @@ async def add_security_headers(request: Request, call_next):
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "service": "backend-api"}
+    return {"status": "ok", "service": "backend-api", "supabase_connected": is_supabase_enabled()}
 
 
 @app.get("/static/uploads/{filename}")
