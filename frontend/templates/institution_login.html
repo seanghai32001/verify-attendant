@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ចូលគ្រប់គ្រង - {{ inst.institution_name }}</title>
+
+    <!-- Khmer Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Moul&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Kantumruy Pro"', "sans-serif"],
+              moul: ["Moul", "serif"],
+            },
+            colors: {
+              brand: {
+                gold: '#b8860b', // ពណ៌មាស
+                maroon: '#7a1f1f', // ពណ៌ក្រហមចាស់
+                title: '#8b1c1c', // ពណ៌ចំណងជើង
+                bg: '#fbf9f1' // ពណ៌ផ្ទៃខាងក្រោយ
+              }
+            }
+          },
+        },
+      };
+    </script>
+    
+    <style>
+      /* លំនាំចំណុច (Dotted Pattern) នៅលើផ្ទៃខាងក្រោយ */
+      body {
+        background-color: #fbf9f1;
+        background-image: radial-gradient(#e5dfd3 1.5px, transparent 1.5px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="flex items-center justify-center min-h-screen font-sans text-gray-800 antialiased p-4"
+  >
+    <!-- Login Card Container -->
+    <main
+      class="w-full max-w-md bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-8 sm:p-10 border border-gray-100 relative z-10"
+    >
+      <!-- Header / Identity Section -->
+      <div class="flex flex-col items-center gap-4 mb-8 text-center">
+        <!-- Logo or Initial -->
+        {% if inst.profile_image_url %}
+        <img
+          src="{{ inst.profile_image_url }}"
+          alt="Institution Logo"
+          class="w-16 h-16 rounded-[14px] object-cover shadow-sm bg-brand-gold"
+        />
+        {% else %}
+        <!-- រូបតំណាងពណ៌មាសដូចក្នុងរូបភាព -->
+        <div
+          class="w-16 h-16 rounded-[14px] bg-brand-gold text-white flex items-center justify-center shadow-sm"
+          aria-hidden="true"
+        >
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        {% endif %}
+
+        <div>
+          <h1
+            id="login-title"
+            class="font-moul text-2xl text-brand-title leading-relaxed"
+          >
+            {{ inst.institution_name }}
+          </h1>
+          <p class="mt-1 text-[11px] font-semibold tracking-[0.2em] text-gray-400 uppercase">
+            Admin Control Panel
+          </p>
+        </div>
+      </div>
+
+      <!-- Error Message Alert -->
+      {% if error %}
+      <div
+        class="p-3.5 mb-6 text-sm bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-start gap-2.5"
+        role="alert"
+      >
+        <svg
+          class="w-5 h-5 shrink-0 mt-0.5 text-red-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>{{ error }}</span>
+      </div>
+      {% endif %}
+
+      <!-- Login Form -->
+      <form
+        action="/manage/{{ username }}/login"
+        method="post"
+        autocomplete="on"
+        class="space-y-5"
+      >
+        <input type="hidden" name="next" value="{{ next }}" />
+
+        <!-- Username Field -->
+        <div>
+          <label
+            for="inst_username"
+            class="block text-sm font-bold text-gray-700 mb-2"
+          >
+            ឈ្មោះអ្នកប្រើប្រាស់ (Username)
+          </label>
+          <div>
+            <input
+              id="inst_username"
+              name="inst_username"
+              value="{{ username }}"
+              autocomplete="username"
+              required
+              class="appearance-none block w-full px-4 py-3 border border-[#d4af37] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold sm:text-sm transition-colors duration-200 bg-white"
+            />
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label
+            for="inst_password"
+            class="block text-sm font-bold text-gray-700 mb-2"
+          >
+            ពាក្យសម្ងាត់ (Password)
+          </label>
+          <div>
+            <input
+              id="inst_password"
+              name="inst_password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold sm:text-sm transition-colors duration-200 bg-white"
+            />
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button
+            type="submit"
+            class="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-lg shadow-sm text-[15px] font-bold text-white bg-brand-maroon hover:bg-[#5c1515] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-maroon transition-all duration-200"
+          >
+            ចូលប្រព័ន្ធ
+          </button>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

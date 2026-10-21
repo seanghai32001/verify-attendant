@@ -1,0 +1,1641 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ផ្ទាំងគ្រប់គ្រង — Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&display=swap"
+      rel="stylesheet"
+    />
+    <!-- HTML2PDF CDN សម្រាប់ទាញយក PDF ផ្ទាល់ទំហំ 1 ទំព័រ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              khmer: {
+                gold: "#C9A227",
+                goldlight: "#E8C547",
+                goldsoft: "#F7E9B8",
+                maroon: "#6B1A1A",
+                maroondark: "#4A1010",
+                redlight: "#FDF2F2",
+                cream: "#FDFBF7",
+                sand: "#F0E6D6",
+                soft: "#FAF7F2",
+              },
+            },
+            fontFamily: {
+              khmer: ['"Kantumruy Pro"', "sans-serif"],
+              moul: ["Moul", "serif"],
+            },
+            boxShadow: {
+              soft: "0 4px 20px -4px rgba(107, 26, 26, 0.08)",
+              card: "0 10px 40px -12px rgba(0, 0, 0, 0.12)",
+              gold: "0 4px 14px -2px rgba(201, 162, 39, 0.35)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+        background-color: #fdfbf7;
+        background-image: radial-gradient(
+          circle at 1px 1px,
+          rgba(201, 162, 39, 0.08) 1px,
+          transparent 0
+        );
+        background-size: 28px 28px;
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.97) translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      .pop-in {
+        animation: popIn 0.32s cubic-bezier(0.22, 0.9, 0.35, 1) both;
+      }
+      .khmer-divider {
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          #6b1a1a 15%,
+          #c9a227 50%,
+          #6b1a1a 85%,
+          transparent 100%
+        );
+      }
+      .nice-scroll::-webkit-scrollbar {
+        height: 5px;
+        width: 5px;
+      }
+      .nice-scroll::-webkit-scrollbar-track {
+        background: #fdfbf7;
+        border-radius: 99px;
+      }
+      .nice-scroll::-webkit-scrollbar-thumb {
+        background: #c9a227;
+        border-radius: 99px;
+      }
+      .toast {
+        animation: popIn 0.3s ease both;
+      }
+
+      /* ================= GUARANTEED 1-PAGE PDF / PRINT STYLES ================= */
+      @media print {
+        body > header,
+        body > section,
+        body > main,
+        #formModal,
+        #infoModal,
+        #deleteInstitutionModal,
+        #toast {
+          display: none !important;
+          visibility: hidden !important;
+        }
+
+        @page {
+          size: 90mm 140mm;
+          margin: 0mm !important;
+        }
+
+        html,
+        body {
+          width: 90mm !important;
+          height: 140mm !important;
+          max-width: 90mm !important;
+          max-height: 140mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          background-image: none !important;
+          overflow: hidden !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        #cardModal {
+          display: block !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 90mm !important;
+          height: 140mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: transparent !important;
+          backdrop-filter: none !important;
+          overflow: hidden !important;
+        }
+
+        .card-control-buttons,
+        #cardModal button {
+          display: none !important;
+        }
+
+        #cardModal > div {
+          display: block !important;
+          position: static !important;
+          width: 90mm !important;
+          height: 140mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        #printableCard {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 90mm !important;
+          height: 140mm !important;
+          max-width: 90mm !important;
+          max-height: 140mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          border: none !important;
+          border-radius: 24px !important;
+          transform: none !important;
+          overflow: hidden !important;
+          display: flex !important;
+          flex-direction: column !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+          page-break-after: avoid !important;
+        }
+
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-gray-800">
+    <!-- ================= NAVBAR ================= -->
+    <header class="bg-khmer-maroon text-white shadow-soft sticky top-0 z-30">
+      <div
+        class="max-w-[1120px] mx-auto px-5 py-3.5 flex items-center justify-between gap-4"
+      >
+        <div class="flex items-center gap-3.5">
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-khmer-gold to-khmer-goldlight flex items-center justify-center shadow-gold ring-2 ring-white/10"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6 text-khmer-maroondark"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 2 9.5 5.5h5L12 2Zm0 4.5c-1.6 1.4-2.4 3-2.4 4.7V10h-1v-1H7v1H5.5v9h13v-9H17v-1h-1.6v1h-1v-2.8c0-1.7-.8-3.3-2.4-4.7Zm-3 8h6v6.5h-6V14.5Z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h1
+              class="font-moul text-[15px] sm:text-base leading-tight tracking-wide"
+            >
+              ប្រព័ន្ធគ្រប់គ្រងរដ្ឋបាល
+            </h1>
+            <p
+              class="text-[10px] text-khmer-gold/90 font-medium tracking-[0.12em] uppercase mt-0.5"
+            >
+              Admin Control Panel
+            </p>
+          </div>
+        </div>
+        <a
+          href="/logout"
+          class="flex items-center gap-1.5 bg-white/8 hover:bg-white/15 border border-white/15 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          <span class="hidden sm:inline">ចាកចេញ</span>
+        </a>
+      </div>
+      <div class="khmer-divider"></div>
+    </header>
+
+    <!-- ================= STATS ================= -->
+    <section class="max-w-[1120px] mx-auto px-5 pt-7">
+      <div class="flex justify-end mb-6">
+        <button
+          id="openFormBtn"
+          type="button"
+          class="group flex items-center gap-2 bg-khmer-gold hover:bg-khmer-goldlight text-khmer-maroondark px-5 py-2.5 rounded-xl text-sm font-bold shadow-gold transition-all duration-200 hover:-translate-y-0.5"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4 transition-transform group-hover:rotate-90"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <span>បង្កើតស្ថាប័នថ្មី</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <!-- Total -->
+        <div
+          class="bg-white rounded-2xl p-5 shadow-soft border border-khmer-sand/80 flex items-center gap-4 hover:shadow-card transition-shadow duration-300"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-khmer-redlight text-khmer-maroon flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"
+              />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 tracking-wide">
+              ស្ថាប័នសរុប
+            </p>
+            <p
+              class="text-2xl font-bold text-khmer-maroon mt-0.5 tracking-tight"
+            >
+              {{ institutions|length }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Active -->
+        <div
+          class="bg-white rounded-2xl p-5 shadow-soft border border-khmer-sand/80 flex items-center gap-4 hover:shadow-card transition-shadow duration-300"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-khmer-goldsoft text-yellow-800 flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 tracking-wide">
+              គណនីសកម្ម
+            </p>
+            <p
+              class="text-2xl font-bold text-khmer-maroon mt-0.5 tracking-tight"
+            >
+              {{ institutions|length }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Security -->
+        <div
+          class="bg-white rounded-2xl p-5 shadow-soft border border-khmer-sand/80 flex items-center gap-4 hover:shadow-card transition-shadow duration-300"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-khmer-maroon/8 text-khmer-maroon flex items-center justify-center shrink-0"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold text-gray-500 tracking-wide">
+              សុវត្ថិភាពប្រព័ន្ធ
+            </p>
+            <p class="text-2xl font-bold text-khmer-gold mt-0.5 tracking-tight">
+              ធានា
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MAIN TABLE ================= -->
+    <main class="max-w-[1120px] mx-auto px-5 py-7 pb-14">
+      <section
+        class="bg-white rounded-2xl shadow-soft border border-khmer-sand/80 overflow-hidden"
+      >
+        <div
+          class="h-1 bg-gradient-to-r from-khmer-maroon via-khmer-gold to-khmer-maroon"
+        ></div>
+        <div class="p-5 sm:p-6">
+          <div
+            class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6"
+          >
+            <h2
+              class="font-moul text-[15px] text-khmer-maroon flex items-center gap-2.5"
+            >
+              <span
+                class="w-8 h-8 rounded-lg bg-khmer-maroon/8 flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </span>
+              បញ្ជីស្ថាប័នប្រតិបត្តិការ
+            </h2>
+            <div class="relative w-full lg:w-72">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"
+                />
+              </svg>
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="ស្វែងរកស្ថាប័ន..."
+                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-khmer-sand bg-khmer-soft focus:bg-white focus:border-khmer-gold focus:ring-2 focus:ring-khmer-gold/20 outline-none transition text-sm"
+              />
+            </div>
+          </div>
+
+          <div class="overflow-x-auto nice-scroll">
+            <table class="w-full text-left border-collapse min-w-[860px]">
+              <thead>
+                <tr
+                  class="bg-khmer-soft text-khmer-maroon border-b border-khmer-sand text-[11px] uppercase tracking-wider"
+                >
+                  <th class="px-4 py-3.5 font-bold w-[34%]">ឈ្មោះស្ថាប័ន</th>
+                  <th class="px-4 py-3.5 font-bold text-center w-[14%]">
+                    QR Code
+                  </th>
+                  <th class="px-4 py-3.5 font-bold text-center w-[18%]">
+                    ព័ត៌មានលម្អិត
+                  </th>
+                  <th class="px-4 py-3.5 font-bold text-center w-[34%]">
+                    សកម្មភាព
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="tableBody" class="text-sm">
+                {% if institutions %} {% for inst in institutions %}
+                <tr
+                  class="border-b border-gray-100/80 hover:bg-khmer-soft/60 transition-colors duration-150"
+                >
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3.5">
+                      {% if inst.profile_image_url %}
+                      <img
+                        src="{{ inst.profile_image_url }}"
+                        alt="Logo"
+                        class="w-11 h-11 rounded-full object-cover border-2 border-khmer-gold/70 shadow-sm"
+                      />
+                      {% else %}
+                      <div
+                        class="w-11 h-11 rounded-full bg-khmer-maroon text-khmer-gold flex items-center justify-center font-bold text-base shrink-0 shadow-sm border-2 border-khmer-gold/60"
+                      >
+                        {{ inst.institution_name[0] }}
+                      </div>
+                      {% endif %}
+                      <div>
+                        <p
+                          class="font-semibold text-gray-800 text-[14.5px] leading-snug"
+                        >
+                          {{ inst.institution_name }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                          @{{ inst.inst_username }}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-4 text-center">
+                    <button
+                      type="button"
+                      class="qr-code-trigger inline-block p-1.5 bg-white border border-gray-200/80 rounded-xl shadow-sm hover:border-khmer-gold hover:scale-105 transition-all duration-200 cursor-pointer"
+                      data-link="{{ inst.public_dashboard_link }}"
+                      data-name="{{ inst.institution_name }}"
+                      data-teacher="{{ inst.teacher_name }}"
+                      title="ចុចដើម្បីបង្ហាញកាត"
+                    >
+                      <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ inst.public_dashboard_link|urlencode }}"
+                        alt="QR Code"
+                        class="w-10 h-10 object-cover rounded-md"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </button>
+                  </td>
+
+                  <td class="px-4 py-4 text-center">
+                    <button
+                      type="button"
+                      class="view-info-btn inline-flex items-center gap-1.5 bg-khmer-gold text-khmer-maroondark px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-khmer-goldlight hover:-translate-y-0.5 transition-all duration-200"
+                      data-inst-id="{{ inst.id }}"
+                      data-inst-name="{{ inst.institution_name }}"
+                      data-teacher-name="{{ inst.teacher_name }}"
+                      data-user="{{ inst.inst_username }}"
+                      data-pass="{{ inst.inst_password if inst.inst_password is not none else '' }}"
+                      data-link="{{ inst.management_link }}"
+                      data-public-link="{{ inst.public_dashboard_link }}"
+                      data-created="{{ inst.created_at }}"
+                    >
+                      <svg
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                      មើល
+                    </button>
+                  </td>
+
+                  <td class="px-4 py-4 text-center">
+                    <div class="flex justify-center items-center gap-2">
+                      <a
+                        href="{{ inst.management_link }}"
+                        target="_blank"
+                        class="inline-flex items-center gap-1.5 bg-white text-khmer-maroon border border-khmer-maroon/70 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-khmer-maroon hover:text-white transition-all duration-200 shadow-sm"
+                      >
+                        ចូលប្រព័ន្ធ
+                        <svg
+                          class="w-3.5 h-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                      <button
+                        onclick="editInstitution('{{ inst.id }}', '{{ inst.institution_name|e }}', '{{ inst.teacher_name|e }}', '{{ inst.inst_username|e }}', '{{ inst.inst_password|e }}')"
+                        class="inline-flex items-center justify-center bg-white text-amber-600 border border-amber-400/80 p-2 rounded-lg hover:bg-amber-500 hover:text-white transition-all duration-200 shadow-sm"
+                        title="កែប្រែ"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onclick="deleteInstitution('{{ inst.id }}')"
+                        class="inline-flex items-center justify-center bg-white text-red-500 border border-red-400/80 p-2 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm"
+                        title="លុប"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %} {% else %}
+                <tr id="emptyRow">
+                  <td
+                    colspan="4"
+                    class="p-12 text-center text-sm text-gray-400"
+                  >
+                    មិនទាន់មានស្ថាប័ននៅឡើយទេ សូមចុចបង្កើតនៅខាងលើ។
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= MODAL: FORM ================= -->
+    <div id="formModal" class="fixed inset-0 z-50 hidden">
+      <div
+        class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        id="modalBackdrop"
+      ></div>
+      <div class="relative h-full flex items-center justify-center p-4">
+        <div
+          class="w-full max-w-md bg-white rounded-2xl shadow-card overflow-hidden pop-in"
+        >
+          <div class="h-1 bg-khmer-maroon"></div>
+          <div
+            class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-khmer-soft/50"
+          >
+            <h2
+              id="formModalTitle"
+              class="font-moul text-base text-khmer-maroon"
+            >
+              បង្កើតស្ថាប័នថ្មី
+            </h2>
+            <button
+              id="closeFormBtn"
+              class="text-gray-400 hover:text-red-500 bg-gray-100 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <form
+            id="institutionForm"
+            class="p-6 space-y-4"
+            enctype="multipart/form-data"
+          >
+            <input type="hidden" id="inst_id" value="" />
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 text-gray-600"
+                >រូបភាពតំណាងស្ថាប័ន (Logo)</label
+              >
+              <input
+                type="file"
+                id="profile_image"
+                accept="image/*"
+                class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-khmer-gold/40 outline-none text-xs bg-white cursor-pointer file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-khmer-goldsoft file:text-khmer-maroon hover:file:bg-khmer-gold/30 transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 text-gray-600"
+                >ឈ្មោះស្ថាប័ន</label
+              >
+              <input
+                type="text"
+                id="inst_name"
+                required
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-khmer-gold/40 outline-none text-sm transition-all"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 text-gray-600"
+                >អ្នកគ្រប់គ្រង</label
+              >
+              <input
+                type="text"
+                id="teacher_name"
+                required
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-khmer-gold/40 outline-none text-sm transition-all"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold mb-1.5 text-gray-600"
+                  >Username</label
+                >
+                <input
+                  type="text"
+                  id="inst_username"
+                  required
+                  class="w-full px-4 py-2.5 border border-khmer-gold/30 bg-khmer-soft rounded-xl focus:ring-2 focus:ring-khmer-gold/50 outline-none text-khmer-maroon font-semibold text-sm transition-all"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1.5 text-gray-600"
+                  >Password</label
+                >
+                <input
+                  type="text"
+                  id="inst_password"
+                  class="w-full px-4 py-2.5 border border-khmer-gold/30 bg-khmer-soft rounded-xl focus:ring-2 focus:ring-khmer-gold/50 outline-none text-khmer-maroon font-semibold text-sm transition-all"
+                  placeholder="ទុកទទេ បើមិនប្តូរ"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              id="submitBtn"
+              class="w-full bg-khmer-maroon text-white font-bold py-3 rounded-xl hover:bg-khmer-maroondark transition-all mt-2 shadow-md text-sm"
+            >
+              រក្សាទុកទិន្នន័យ
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL: INFO ================= -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden">
+      <div
+        class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        id="infoBackdrop"
+      ></div>
+      <div class="relative h-full flex items-center justify-center p-4">
+        <div
+          class="w-full max-w-sm bg-white rounded-2xl shadow-card overflow-hidden pop-in border border-khmer-sand/60"
+        >
+          <div
+            class="h-1 bg-gradient-to-r from-khmer-maroon to-khmer-gold"
+          ></div>
+          <div
+            class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-khmer-soft/40"
+          >
+            <h2
+              class="font-moul text-[15px] text-khmer-maroon flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              ព័ត៌មានលម្អិត
+            </h2>
+            <div class="flex items-center gap-2">
+              <button
+                id="editFromInfoBtn"
+                class="bg-amber-50 p-1.5 rounded-lg text-amber-700 hover:bg-amber-500 hover:text-white transition-colors shadow-sm"
+                title="កែប្រែ"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  />
+                </svg>
+              </button>
+              <button
+                id="closeInfoBtn"
+                class="bg-gray-100 p-1.5 rounded-lg text-gray-500 hover:bg-red-500 hover:text-white transition-colors"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="p-5 space-y-5">
+            <div
+              class="space-y-2.5 bg-khmer-soft p-4 rounded-xl border border-khmer-sand/70 text-sm"
+            >
+              <div
+                class="flex justify-between items-center border-b border-gray-200/70 pb-2"
+              >
+                <span class="text-gray-500 font-medium text-xs">ស្ថាប័ន</span>
+                <span
+                  id="infoInstName"
+                  class="font-semibold text-khmer-maroon text-right"
+                ></span>
+              </div>
+              <div
+                class="flex justify-between items-center border-b border-gray-200/70 pb-2"
+              >
+                <span class="text-gray-500 font-medium text-xs"
+                  >អ្នកគ្រប់គ្រង</span
+                >
+                <span
+                  id="infoTeacherName"
+                  class="font-semibold text-gray-800 text-right"
+                ></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-500 font-medium text-xs">ពេលវេលា</span>
+                <span
+                  id="infoCreatedAt"
+                  class="font-medium text-xs text-gray-600 text-right"
+                ></span>
+              </div>
+            </div>
+
+            <div class="bg-red-50/80 p-4 rounded-xl border border-red-100/80">
+              <p
+                class="text-[10px] font-bold text-khmer-maroon uppercase tracking-wider mb-2.5"
+              >
+                ទិន្នន័យសម្រាប់ Log In
+              </p>
+              <div class="flex justify-between items-center mb-2 text-sm">
+                <span class="text-gray-600 font-medium text-xs">Username</span>
+                <span
+                  id="infoUsername"
+                  class="font-mono font-semibold text-khmer-maroon bg-white px-2.5 py-1 rounded-lg shadow-sm border border-gray-100 text-xs"
+                ></span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-600 font-medium text-xs">Password</span>
+                <span
+                  id="infoPassword"
+                  class="font-mono font-semibold text-khmer-maroon bg-white px-2.5 py-1 rounded-lg shadow-sm border border-gray-100 text-xs"
+                ></span>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center pt-1">
+              <p class="text-xs font-medium text-gray-500 mb-2.5">
+                ស្កេនទីនេះដើម្បីមើលព័ត៌មានសាលា
+              </p>
+              <div
+                class="p-2.5 bg-white rounded-2xl border-2 border-khmer-gold/80 shadow-sm"
+              >
+                <img
+                  id="infoQrCode"
+                  src=""
+                  alt="QR Code"
+                  class="w-32 h-32 object-cover rounded-lg"
+                />
+              </div>
+              <button
+                id="copyLinkBtn"
+                type="button"
+                class="mt-4 w-full text-center bg-khmer-maroon text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-khmer-maroondark transition-all flex items-center justify-center gap-2"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+                ចម្លងតំណភ្ជាប់ (Copy Link)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL: DELETE INSTITUTION ================= -->
+    <div id="deleteInstitutionModal" class="fixed inset-0 z-[55] hidden">
+      <div
+        class="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        onclick="closeDeleteInstitutionModal()"
+      ></div>
+      <div class="relative min-h-full flex items-center justify-center p-4">
+        <form
+          id="deleteInstitutionForm"
+          class="w-full max-w-sm bg-white rounded-2xl shadow-card overflow-hidden pop-in border border-red-100/60"
+        >
+          <div class="h-1 bg-red-600"></div>
+          <div class="p-6">
+            <div
+              class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h2 class="font-moul text-center text-[15px] text-khmer-maroon">
+              បញ្ជាក់ការលុបស្ថាប័ន
+            </h2>
+            <p
+              class="text-xs text-gray-500 text-center mt-2 mb-5 leading-relaxed"
+            >
+              ការលុបនឹងលុបទិន្នន័យស្ថាប័ននេះជាអចិន្ត្រៃយ៍។ សូមបញ្ចូលពាក្យសម្ងាត់
+              Admin ដើម្បីបន្ត។
+            </p>
+            <label
+              for="deleteInstitutionPassword"
+              class="block text-xs font-semibold mb-1.5 text-gray-600"
+              >ពាក្យសម្ងាត់ Admin</label
+            >
+            <input
+              id="deleteInstitutionPassword"
+              type="password"
+              required
+              autocomplete="current-password"
+              class="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/40 outline-none text-sm transition-all"
+            />
+            <div class="flex gap-3 mt-6">
+              <button
+                type="button"
+                onclick="closeDeleteInstitutionModal()"
+                class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all"
+              >
+                បោះបង់
+              </button>
+              <button
+                id="confirmDeleteInstitutionBtn"
+                type="submit"
+                class="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-red-700 transition-all disabled:opacity-60 shadow-md shadow-red-600/15"
+              >
+                លុបស្ថាប័ន
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= MODAL: PREMIUM ID CARD ================= -->
+    <div
+      id="cardModal"
+      class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+    >
+      <div class="relative flex flex-col items-center">
+        <!-- Control Buttons -->
+        <div
+          class="card-control-buttons absolute -top-14 right-0 flex gap-2.5 z-50"
+        >
+          <!-- Direct Card Download Button -->
+          <button
+            onclick="downloadCardPDF()"
+            class="bg-khmer-gold text-khmer-maroondark px-4 py-2 rounded-xl text-sm font-bold shadow-gold hover:bg-khmer-goldlight hover:-translate-y-0.5 transition-all flex items-center gap-1.5"
+            title="ទាញយកកាត"
+          >
+            <svg
+              class="w-4 h-4 text-khmer-maroondark"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            ទាញយកកាត
+          </button>
+
+          <!-- Close Modal -->
+          <button
+            onclick="closeCard()"
+            class="bg-white/10 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-bold shadow-lg hover:bg-red-600 transition-all flex items-center gap-1.5"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            បិទ
+          </button>
+        </div>
+
+        <!-- ================= PREMIUM CARD ================= -->
+        <div
+          id="printableCard"
+          class="relative w-[340px] h-[529px] rounded-[24px] shadow-card overflow-hidden pop-in flex flex-col"
+          style="
+            width: 340px;
+            height: 529px;
+            max-width: 340px;
+            max-height: 529px;
+            background-color: #4a1010;
+            border-radius: 24px;
+            -webkit-border-radius: 24px;
+          "
+        >
+          <!-- ===== TOP WHITE SECTION ===== -->
+          <div
+            class="relative bg-white pt-6 pb-3 px-6 text-center shrink-0 rounded-t-[24px]"
+            style="
+              background-color: #ffffff;
+              height: 142px;
+              border-top-left-radius: 24px;
+              border-top-right-radius: 24px;
+              -webkit-border-top-left-radius: 24px;
+              -webkit-border-top-right-radius: 24px;
+            "
+          >
+            <!-- Logo -->
+            <div
+              class="mx-auto w-14 h-14 rounded-full flex items-center justify-center shadow-gold ring-4 ring-khmer-gold/20 mb-2"
+              style="
+                background: linear-gradient(135deg, #c9a227, #f59e0b);
+                background-color: #c9a227;
+              "
+            >
+              <svg
+                width="32"
+                height="32"
+                class="w-8 h-8"
+                viewBox="0 0 24 24"
+                fill="#4A1010"
+              >
+                <path
+                  fill="#4A1010"
+                  d="M12 2 9.5 5.5h5L12 2Zm0 4.5c-1.6 1.4-2.4 3-2.4 4.7V10h-1v-1H7v1H5.5v9h13v-9H17v-1h-1.6v1h-1v-2.8c0-1.7-.8-3.3-2.4-4.7Zm-3 8h6v6.5h-6V14.5Z"
+                />
+              </svg>
+            </div>
+
+            <!-- Institution Name -->
+            <h2
+              id="cardInstName"
+              class="font-moul text-[15px] leading-snug line-clamp-1 px-1"
+              style="color: #6b1a1a"
+            >
+              ឈ្មោះស្ថាប័ន
+            </h2>
+
+            <!-- Thin gold line -->
+            <div
+              class="w-12 h-[2px] mx-auto my-1.5 rounded-full"
+              style="background-color: #c9a227"
+            ></div>
+
+            <!-- Teacher Name -->
+            <p
+              id="cardTeacherName"
+              class="text-[12px] font-semibold tracking-wide"
+              style="color: #6b7280"
+            >
+              អ្នកគ្រប់គ្រង
+            </p>
+          </div>
+
+          <!-- ===== WAVE TRANSITION ===== -->
+          <div
+            class="relative w-full shrink-0"
+            style="
+              height: 28px;
+              background-color: #ffffff;
+              line-height: 0;
+              font-size: 0;
+            "
+          >
+            <img
+              src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 28' preserveAspectRatio='none' width='340' height='28'><path fill='%236B1A1A' d='M0,28 C60,8 120,0 170,7 C220,14 280,24 340,10 L340,28 L0,28 Z'/></svg>"
+              alt=""
+              style="
+                display: block;
+                width: 100%;
+                height: 28px;
+                border: none;
+                margin: 0;
+                padding: 0;
+              "
+            />
+          </div>
+
+          <!-- ===== MAROON BODY ===== -->
+          <div
+            class="flex-1 px-6 flex flex-col items-center justify-center relative"
+            style="background-color: #6b1a1a; min-height: 293px"
+          >
+            <!-- Subtle pattern -->
+            <div
+              class="absolute inset-0 pointer-events-none"
+              style="
+                opacity: 0.06;
+                background-image: radial-gradient(
+                  circle at 1px 1px,
+                  #c9a227 1px,
+                  transparent 0
+                );
+                background-size: 18px 18px;
+              "
+            ></div>
+
+            <!-- QR Code Box -->
+            <div
+              class="relative z-10 p-2.5 rounded-2xl shadow-lg border-[3px]"
+              style="border-color: #c9a227; background-color: #ffffff"
+            >
+              <img
+                id="cardQrCode"
+                src=""
+                alt="QR Code"
+                crossorigin="anonymous"
+                class="w-[160px] h-[160px] object-contain rounded-md block"
+                style="width: 160px; height: 160px; display: block"
+              />
+            </div>
+
+            <p
+              class="relative z-10 text-[11px] mt-3 font-bold"
+              style="color: #e8c547; letter-spacing: normal !important"
+            >
+              ស្កេនដើម្បីចូលមើល
+            </p>
+          </div>
+
+          <!-- ===== FOOTER ===== -->
+          <div
+            class="text-white px-5 py-3 shrink-0 rounded-b-[24px]"
+            style="
+              background-color: #4a1010;
+              height: 66px;
+              border-bottom-left-radius: 24px;
+              border-bottom-right-radius: 24px;
+              -webkit-border-bottom-left-radius: 24px;
+              -webkit-border-bottom-right-radius: 24px;
+            "
+          >
+            <div class="flex items-center justify-between gap-3 h-full">
+              <!-- Left: Creator -->
+              <div>
+                <p
+                  class="text-[9px] uppercase tracking-widest font-bold mb-0.5"
+                  style="color: #c9a227"
+                >
+                  Powered by
+                </p>
+                <p
+                  class="text-[14px] font-bold leading-tight font-moul text-white"
+                >
+                  MR TSH
+                </p>
+              </div>
+
+              <!-- Right: Contact -->
+              <div class="text-right">
+                <div class="inline-flex flex-col items-end gap-1">
+                  <div
+                    class="flex items-center gap-1.5 text-[11px] font-semibold text-white"
+                  >
+                    <!-- Phone Icon -->
+                    <svg
+                      width="14"
+                      height="14"
+                      class="w-3.5 h-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="#C9A227"
+                      stroke-width="2"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                    <span>093339040</span>
+                  </div>
+                  <div
+                    class="flex items-center gap-1.5 text-[11px] font-semibold text-white"
+                  >
+                    <!-- Telegram Icon -->
+                    <svg
+                      width="14"
+                      height="14"
+                      class="w-3.5 h-3.5"
+                      fill="#C9A227"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="#C9A227"
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.36-.49.99-.74 3.87-1.69 6.45-2.81 7.74-3.35 3.7-1.55 4.47-1.82 4.97-1.83.11 0 .35.03.51.16.13.11.17.26.19.37-.01.06-.01.14-.02.22z"
+                      />
+                    </svg>
+                    <span>Telegram 093339040</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ================= END CARD ================= -->
+      </div>
+    </div>
+
+    <!-- ================= TOAST ================= -->
+    <div id="toast" class="fixed bottom-5 right-5 z-[70] hidden">
+      <div
+        id="toastBox"
+        class="toast bg-gray-900 text-white px-5 py-3.5 rounded-xl shadow-2xl text-sm flex items-center gap-3"
+      >
+        <span id="toastMsg"></span>
+      </div>
+    </div>
+
+    <script>
+      let currentLinkToCopy = "";
+      let currentInstData = {};
+      let institutionToDelete = null;
+
+      // មុខងារធានាថាតំណភ្ជាប់ប្រើប្រាស់ Host/Domain បច្ចុប្បន្ន ១០០%
+      function buildAbsoluteUrl(link) {
+        if (!link) return window.location.origin;
+        try {
+          const url = new URL(link, window.location.origin);
+          return `${window.location.origin}${url.pathname}${url.search}${url.hash}`;
+        } catch (e) {
+          const cleanPath = link.startsWith("/") ? link : "/" + link;
+          return `${window.location.origin}${cleanPath}`;
+        }
+      }
+
+      function showToast(msg, type = "info") {
+        const toast = document.getElementById("toast");
+        const box = document.getElementById("toastBox");
+        const msgEl = document.getElementById("toastMsg");
+        const colors = {
+          success: "bg-green-600",
+          error: "bg-red-600",
+          info: "bg-gray-900",
+        };
+        box.className = `toast ${colors[type] || colors.info} text-white px-5 py-3.5 rounded-xl shadow-2xl text-sm flex items-center gap-3`;
+        msgEl.textContent = msg;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 3000);
+      }
+
+      // អាប់ដេត QR Code ក្នុងតារាងភ្លាមៗពេលទំព័រដើរចប់ (ដើម្បីប្រើ Domain បច្ចុប្បន្ន)
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".qr-code-trigger").forEach((trigger) => {
+          const rawLink = trigger.dataset.link;
+          if (rawLink) {
+            const fullUrl = buildAbsoluteUrl(rawLink);
+            trigger.dataset.link = fullUrl;
+            const qrImg = trigger.querySelector("img");
+            if (qrImg) {
+              qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(fullUrl)}`;
+            }
+          }
+        });
+      });
+
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        document.querySelectorAll("#tableBody tr").forEach((row) => {
+          if (row.id === "emptyRow") return;
+          row.style.display = row.textContent.toLowerCase().includes(q)
+            ? ""
+            : "none";
+        });
+      });
+
+      const formModal = document.getElementById("formModal");
+      const infoModal = document.getElementById("infoModal");
+      const cardModal = document.getElementById("cardModal");
+      const formTitle = document.getElementById("formModalTitle");
+
+      document.getElementById("openFormBtn").addEventListener("click", () => {
+        document.getElementById("institutionForm").reset();
+        document.getElementById("inst_id").value = "";
+        document.getElementById("inst_password").required = true;
+        formTitle.textContent = "បង្កើតស្ថាប័នថ្មី";
+        formModal.classList.remove("hidden");
+      });
+
+      document
+        .getElementById("closeFormBtn")
+        .addEventListener("click", () => formModal.classList.add("hidden"));
+      document
+        .getElementById("modalBackdrop")
+        .addEventListener("click", () => formModal.classList.add("hidden"));
+      document
+        .getElementById("closeInfoBtn")
+        .addEventListener("click", () => infoModal.classList.add("hidden"));
+      document
+        .getElementById("infoBackdrop")
+        .addEventListener("click", () => infoModal.classList.add("hidden"));
+
+      document.getElementById("tableBody").addEventListener("click", (e) => {
+        const btn = e.target.closest(".view-info-btn");
+        if (!btn) return;
+
+        currentInstData = {
+          id: btn.dataset.instId,
+          name: btn.dataset.instName,
+          teacher: btn.dataset.teacherName,
+          user: btn.dataset.user,
+          pass: btn.dataset.pass,
+        };
+
+        document.getElementById("infoInstName").textContent =
+          currentInstData.name;
+        document.getElementById("infoTeacherName").textContent =
+          currentInstData.teacher;
+        document.getElementById("infoUsername").textContent =
+          currentInstData.user;
+        document.getElementById("infoPassword").textContent =
+          currentInstData.pass && currentInstData.pass.trim() !== ""
+            ? currentInstData.pass
+            : "មិនមានទិន្នន័យ; សូមកំណត់ password ថ្មី";
+        document.getElementById("infoCreatedAt").textContent =
+          btn.dataset.created || "មិនមានទិន្នន័យ";
+
+        const fullLink = buildAbsoluteUrl(btn.dataset.publicLink);
+        currentLinkToCopy = fullLink;
+        document.getElementById("infoQrCode").src =
+          `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(fullLink)}`;
+
+        const copyBtn = document.getElementById("copyLinkBtn");
+        copyBtn.innerHTML =
+          '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> ចម្លងតំណភ្ជាប់ (Copy Link)';
+        copyBtn.classList.remove("bg-green-600");
+        copyBtn.classList.add("bg-khmer-maroon");
+
+        infoModal.classList.remove("hidden");
+      });
+
+      function fallbackCopy(text) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.top = "0";
+        ta.style.left = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+          const ok = document.execCommand("copy");
+          document.body.removeChild(ta);
+          return ok;
+        } catch {
+          document.body.removeChild(ta);
+          return false;
+        }
+      }
+
+      document
+        .getElementById("copyLinkBtn")
+        .addEventListener("click", async function () {
+          const btn = this;
+          let copied = false;
+
+          if (navigator.clipboard && window.isSecureContext) {
+            try {
+              await navigator.clipboard.writeText(currentLinkToCopy);
+              copied = true;
+            } catch {
+              copied = false;
+            }
+          }
+          if (!copied) copied = fallbackCopy(currentLinkToCopy);
+
+          if (copied) {
+            btn.classList.remove("bg-khmer-maroon");
+            btn.classList.add("bg-green-600");
+            btn.innerHTML =
+              '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> បានចម្លងជោគជ័យ!';
+            setTimeout(() => {
+              btn.classList.remove("bg-green-600");
+              btn.classList.add("bg-khmer-maroon");
+              btn.innerHTML =
+                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> ចម្លងតំណភ្ជាប់ (Copy Link)';
+            }, 2000);
+          } else {
+            prompt("សូម Copy តំណភ្ជាប់ខាងក្រោមដោយដៃ៖", currentLinkToCopy);
+          }
+        });
+
+      document
+        .getElementById("tableBody")
+        .addEventListener("click", (event) => {
+          const trigger = event.target.closest(".qr-code-trigger");
+          if (trigger) {
+            const name = trigger.dataset.name;
+            const teacher = trigger.dataset.teacher || "មិនមានឈ្មោះ";
+            const link = trigger.dataset.link;
+
+            const fullLink = buildAbsoluteUrl(link);
+
+            document.getElementById("cardInstName").textContent = name;
+            document.getElementById("cardTeacherName").textContent = teacher;
+            document.getElementById("cardQrCode").src =
+              `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(fullLink)}`;
+
+            cardModal.classList.remove("hidden");
+          }
+        });
+
+      function closeCard() {
+        cardModal.classList.add("hidden");
+      }
+
+      /* ================= DOWNLOAD 1-PAGE VIA HTML2PDF ================= */
+      function downloadCardPDF() {
+        const card = document.getElementById("printableCard");
+        const instName =
+          document.getElementById("cardInstName").textContent.trim() ||
+          "ID_Card";
+
+        showToast("កំពុងរៀបចំទាញយកកាត...", "info");
+
+        const opt = {
+          margin: 0,
+          filename: `Card_${instName}.pdf`,
+          image: { type: "png" },
+          html2canvas: {
+            scale: 3,
+            useCORS: true,
+            logging: false,
+            scrollY: 0,
+            scrollX: 0,
+            backgroundColor: null,
+          },
+          jsPDF: {
+            unit: "mm",
+            format: [90, 140],
+            orientation: "portrait",
+          },
+        };
+
+        if (window.html2pdf) {
+          html2pdf()
+            .set(opt)
+            .from(card)
+            .save()
+            .then(() => {
+              showToast("✅ បានទាញយកកាតជោគជ័យ", "success");
+            })
+            .catch(() => {
+              showToast("❌ មិនអាចទាញយកកាតបានទេ", "error");
+            });
+        }
+      }
+
+      document
+        .getElementById("editFromInfoBtn")
+        .addEventListener("click", () => {
+          infoModal.classList.add("hidden");
+          editInstitution(
+            currentInstData.id,
+            currentInstData.name,
+            currentInstData.teacher,
+            currentInstData.user,
+            currentInstData.pass,
+          );
+        });
+
+      function editInstitution(id, name, teacher, user, pass) {
+        document.getElementById("inst_id").value = id;
+        document.getElementById("inst_name").value = name;
+        document.getElementById("teacher_name").value = teacher;
+        document.getElementById("inst_username").value = user;
+        document.getElementById("inst_password").value = pass || "";
+        document.getElementById("inst_password").required = false;
+        formTitle.textContent = "កែប្រែព័ត៌មានស្ថាប័ន";
+        formModal.classList.remove("hidden");
+      }
+
+      function deleteInstitution(id) {
+        institutionToDelete = id;
+        document.getElementById("deleteInstitutionPassword").value = "";
+        document
+          .getElementById("deleteInstitutionModal")
+          .classList.remove("hidden");
+        document.getElementById("deleteInstitutionPassword").focus();
+      }
+
+      function closeDeleteInstitutionModal() {
+        document
+          .getElementById("deleteInstitutionModal")
+          .classList.add("hidden");
+        document.getElementById("deleteInstitutionPassword").value = "";
+        institutionToDelete = null;
+      }
+
+      document
+        .getElementById("deleteInstitutionForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (institutionToDelete === null) return;
+
+          const id = institutionToDelete;
+          const password = document.getElementById(
+            "deleteInstitutionPassword",
+          ).value;
+          const submitButton = document.getElementById(
+            "confirmDeleteInstitutionBtn",
+          );
+          submitButton.disabled = true;
+          submitButton.textContent = "កំពុងលុប...";
+
+          try {
+            const formData = new FormData();
+            formData.append("password", password);
+            const r = await fetch(`/api/institutions/${id}`, {
+              method: "DELETE",
+              body: formData,
+            });
+            if (r.ok) {
+              closeDeleteInstitutionModal();
+              showToast("✅ លុបបានជោគជ័យ", "success");
+              setTimeout(() => window.location.reload(), 600);
+            } else {
+              const err = await r.json().catch(() => ({}));
+              showToast(
+                "❌ " + (err.error || err.detail || "មានបញ្ហា"),
+                "error",
+              );
+              document.getElementById("deleteInstitutionPassword").value = "";
+              document.getElementById("deleteInstitutionPassword").focus();
+            }
+          } catch {
+            showToast("❌ មិនអាចភ្ជាប់ទៅ Server", "error");
+          } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "លុបស្ថាប័ន";
+          }
+        });
+
+      document
+        .getElementById("institutionForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("submitBtn");
+          const instId = document.getElementById("inst_id").value;
+
+          btn.textContent = "កំពុងរក្សាទុក...";
+          btn.disabled = true;
+
+          const formData = new FormData();
+          formData.append(
+            "institution_name",
+            document.getElementById("inst_name").value.trim(),
+          );
+          formData.append(
+            "teacher_name",
+            document.getElementById("teacher_name").value.trim(),
+          );
+          formData.append(
+            "inst_username",
+            document.getElementById("inst_username").value.trim(),
+          );
+          formData.append(
+            "inst_password",
+            document.getElementById("inst_password").value.trim(),
+          );
+
+          const fi = document.getElementById("profile_image");
+          if (fi.files.length > 0)
+            formData.append("profile_image", fi.files[0]);
+
+          try {
+            const url = instId
+              ? `/api/institutions/${instId}`
+              : "/api/institutions";
+            const method = instId ? "PUT" : "POST";
+            const r = await fetch(url, { method, body: formData });
+
+            if (r.ok) {
+              showToast("✅ រក្សាទុកបានជោគជ័យ", "success");
+              setTimeout(() => window.location.reload(), 600);
+            } else {
+              const err = await r.json().catch(() => ({}));
+              showToast(
+                "❌ " + (err.error || err.detail || "មានបញ្ហាក្នុងការរក្សាទុក"),
+                "error",
+              );
+            }
+          } catch {
+            showToast("❌ មិនអាចភ្ជាប់ទៅ Server", "error");
+          } finally {
+            btn.textContent = "រក្សាទុកទិន្នន័យ";
+            btn.disabled = false;
+          }
+        });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          formModal.classList.add("hidden");
+          infoModal.classList.add("hidden");
+          closeDeleteInstitutionModal();
+          closeCard();
+        }
+      });
+    </script>
+  </body>
+</html>

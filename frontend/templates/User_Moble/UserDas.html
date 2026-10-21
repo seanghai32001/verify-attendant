@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#4B0D12" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="format-detection" content="telephone=no" />
+
+    <title>ព័ត៌មានសាលា - {{ inst.institution_name }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#211D19",
+              muted: "#7B7268",
+              line: "#E7E1D7",
+              canvas: "#F6F4F0",
+              maroon: {
+                DEFAULT: "#7A1F1F",
+                dark: "#4B0D12",
+                light: "#9B4040",
+                soft: "#F7EAEA",
+              },
+              gold: {
+                DEFAULT: "#C9A227",
+                light: "#F0E2B6",
+                soft: "#FBF3DF",
+                deep: "#9A7A14",
+              },
+              jade: {
+                DEFAULT: "#0F6B5C",
+                dark: "#0A4F44",
+                soft: "#EAF5F2",
+              },
+            },
+            fontFamily: {
+              khmer: ['"Kantumruy Pro"', "sans-serif"],
+              moul: ['"Moul"', "serif"],
+            },
+            boxShadow: {
+              card: "0 1px 2px rgba(33,29,25,.04), 0 8px 24px -16px rgba(33,29,25,.35)",
+              header: "0 8px 24px -14px rgba(75,13,18,.75)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root {
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html,
+      body {
+        overscroll-behavior-y: contain;
+      }
+
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+        color: #211d19;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background-color: #f6f4f0;
+        background-image:
+          radial-gradient(
+            circle at 8% -10%,
+            rgba(201, 162, 39, 0.13),
+            transparent 42%
+          ),
+          radial-gradient(
+            circle at 102% 108%,
+            rgba(15, 107, 92, 0.09),
+            transparent 45%
+          );
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(16px);
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .animate-fade-up {
+        animation: fadeUp 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .spinner {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid #ece7de;
+        border-top-color: #0f6b5c;
+        border-right-color: #c9a227;
+        animation: spin 0.75s linear infinite;
+      }
+
+      /* Chip (subject filter) */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 600;
+        white-space: nowrap;
+        border: 1px solid #e7e1d7;
+        background: #ffffff;
+        color: #4b453e;
+        transition: all 0.18s ease;
+      }
+      .chip:active {
+        transform: scale(0.96);
+      }
+      .chip.is-active {
+        background: linear-gradient(135deg, #0f6b5c, #0a4f44);
+        color: #ffffff;
+        border-color: rgba(201, 162, 39, 0.55);
+        box-shadow: 0 6px 14px -8px rgba(15, 107, 92, 0.85);
+      }
+
+      /* ====================================================
+         COMPACT CLASS CARD (3 per row on mobile)
+      ==================================================== */
+      .class-card-compact {
+        border-radius: 10px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e7e1d7;
+        box-shadow: 0 1px 2px rgba(33, 29, 25, 0.04);
+        display: flex;
+        flex-direction: column;
+        color: inherit;
+        text-decoration: none;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
+      }
+      .class-card-compact:active {
+        transform: scale(0.97);
+      }
+      .class-card-compact:focus-visible {
+        outline: 3px solid rgba(15, 107, 92, 0.55);
+        outline-offset: 2px;
+      }
+
+      /* Compact banner */
+      .class-banner-compact {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+      }
+
+      /* Watermark icon */
+      .banner-watermark-sm {
+        position: absolute;
+        right: -8px;
+        bottom: -10px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.12;
+        color: #fff;
+        pointer-events: none;
+      }
+
+      /* Class name inside banner */
+      .class-title-compact {
+        font-family: "Moul", serif;
+        font-size: 9.5px;
+        line-height: 1.4;
+        color: #ffffff;
+        text-align: center;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        z-index: 2;
+        max-width: 100%;
+      }
+
+      /* Small top-badge in banner */
+      .banner-badge-sm {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-size: 7px;
+        font-weight: 700;
+        padding: 2px 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+        backdrop-filter: blur(2px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        z-index: 3;
+        letter-spacing: 0.02em;
+      }
+
+      /* Small student badge in banner (top-right) */
+      .banner-count-sm {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        font-size: 7px;
+        font-weight: 700;
+        padding: 2px 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+        backdrop-filter: blur(2px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        z-index: 3;
+      }
+
+      /* Bottom caption accent */
+      .banner-accent-line {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 2px;
+        width: 32%;
+        border-radius: 999px;
+        z-index: 3;
+      }
+
+      /* Info area below banner */
+      .class-info-compact {
+        padding: 5px 5px 6px;
+        text-align: center;
+        background: #ffffff;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .info-subject {
+        font-size: 8.5px;
+        font-weight: 700;
+        color: #9a7a14;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .info-time {
+        font-size: 7.5px;
+        font-weight: 600;
+        color: #0f6b5c;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+      }
+
+      .info-students {
+        margin-top: 2px;
+        padding-top: 3px;
+        border-top: 1px dashed #e7e1d7;
+        font-size: 7.5px;
+        font-weight: 600;
+        color: #7b7268;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+      }
+
+      /* Grid: 3 cards per row on mobile, more on bigger screens */
+      .class-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      @media (min-width: 420px) {
+        .class-grid {
+          gap: 10px;
+        }
+        .class-title-compact {
+          font-size: 10.5px;
+        }
+        .info-subject {
+          font-size: 9px;
+        }
+        .info-time,
+        .info-students {
+          font-size: 8px;
+        }
+      }
+
+      @media (min-width: 640px) {
+        .class-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 12px;
+        }
+      }
+
+      @media (min-width: 900px) {
+        .class-grid {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+      }
+
+      .pb-safe {
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen flex flex-col">
+    <!-- ================= HEADER ================= -->
+    <header
+      class="sticky top-0 z-40 text-white shadow-header pt-safe"
+      style="
+        background: linear-gradient(
+          120deg,
+          #4b0d12 0%,
+          #7a1f1f 48%,
+          #4b0d12 100%
+        );
+      "
+    >
+      <div
+        class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent"
+      ></div>
+
+      <div class="relative px-4 h-14 flex items-center gap-3">
+        <!-- Brand -->
+        {% if inst.profile_image_url %}
+        <div
+          class="shrink-0 rounded-full p-[2px] bg-gradient-to-br from-gold-light via-gold to-gold-deep"
+        >
+          <img
+            src="{{ inst.profile_image_url }}"
+            alt="Logo"
+            class="w-9 h-9 rounded-full object-cover bg-white"
+          />
+        </div>
+        {% else %}
+        <div
+          class="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-jade to-jade-dark text-white grid place-items-center font-bold text-sm border-2 border-gold/80"
+        >
+          {{ inst.institution_name[0] }}
+        </div>
+        {% endif %}
+
+        <div class="min-w-0 flex-1">
+          <p
+            class="text-[8px] uppercase tracking-[0.2em] text-gold-light/75 font-semibold leading-none"
+          >
+            ព័ត៌មានសាលារៀន
+          </p>
+          <h1
+            class="font-moul text-[12px] tracking-wide text-white truncate mt-0.5"
+          >
+            {{ inst.institution_name }}
+          </h1>
+        </div>
+
+        <!-- Live indicator -->
+        <div
+          class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+            ></span>
+            <span
+              class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"
+            ></span>
+          </span>
+          <span class="text-[10px] font-semibold text-white/90">បង្ហាញ</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main
+      class="flex-1 px-3 py-4 space-y-4 max-w-[640px] w-full mx-auto pb-safe"
+    >
+      <!-- Welcome strip -->
+      <section class="animate-fade-up">
+        <p class="text-[10px] uppercase tracking-[0.18em] font-bold text-muted">
+          សូមស្វាគមន៍
+        </p>
+        <h2 class="font-moul text-[15px] text-ink leading-relaxed mt-1">
+          ព័ត៌មានថ្នាក់រៀនសង្ខេប
+        </h2>
+      </section>
+
+      <!-- ================= STATS ================= -->
+      <section
+        class="grid grid-cols-3 gap-2 animate-fade-up"
+        style="animation-delay: 0.05s"
+      >
+        <!-- Subjects -->
+        <div class="rounded-xl bg-white border border-line p-3 shadow-card">
+          <div
+            class="w-8 h-8 rounded-lg grid place-items-center bg-gold-soft border border-gold/30 text-gold-deep mb-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.9"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
+          <p class="text-[9.5px] font-semibold text-muted leading-tight">
+            មុខវិជ្ជា
+          </p>
+          <p
+            id="stat-subjects"
+            class="font-moul text-lg text-ink leading-none mt-1"
+          >
+            --
+          </p>
+        </div>
+
+        <!-- Classes -->
+        <div class="rounded-xl bg-white border border-line p-3 shadow-card">
+          <div
+            class="w-8 h-8 rounded-lg grid place-items-center bg-maroon-soft border border-maroon/20 text-maroon mb-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.9"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
+            </svg>
+          </div>
+          <p class="text-[9.5px] font-semibold text-muted leading-tight">
+            ថ្នាក់រៀន
+          </p>
+          <p
+            id="stat-classes"
+            class="font-moul text-lg text-ink leading-none mt-1"
+          >
+            --
+          </p>
+        </div>
+
+        <!-- Students -->
+        <div class="rounded-xl bg-white border border-line p-3 shadow-card">
+          <div
+            class="w-8 h-8 rounded-lg grid place-items-center bg-jade-soft border border-jade/20 text-jade mb-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.9"
+                d="M17 20a4 4 0 00-8 0M13 11a4 4 0 100-8 4 4 0 000 8zm5 9a4 4 0 00-3-3.87M17 7a4 4 0 010 6"
+              />
+            </svg>
+          </div>
+          <p class="text-[9.5px] font-semibold text-muted leading-tight">
+            សិស្ស
+          </p>
+          <p
+            id="stat-students"
+            class="font-moul text-lg text-ink leading-none mt-1"
+          >
+            --
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= SUBJECT FILTER CHIPS ================= -->
+      <section class="animate-fade-up" style="animation-delay: 0.1s">
+        <div class="flex items-center justify-between mb-2">
+          <p
+            class="text-[10px] uppercase tracking-[0.18em] font-bold text-muted"
+          >
+            មុខវិជ្ជា
+          </p>
+          <span
+            id="subject-count-label"
+            class="text-[10px] text-muted/80"
+          ></span>
+        </div>
+
+        <div
+          id="subject-chips"
+          class="flex gap-2 overflow-x-auto no-scrollbar -mx-3 px-3 pb-1"
+        >
+          <div class="chip">កំពុងទាញ...</div>
+        </div>
+      </section>
+
+      <!-- ================= CLASS LIST ================= -->
+      <section class="animate-fade-up" style="animation-delay: 0.15s">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 id="class-section-title" class="font-moul text-[13px] text-ink">
+              បន្ទប់ថ្នាក់ទាំងអស់
+            </h3>
+            <p id="class-section-sub" class="text-[10.5px] text-muted mt-0.5">
+              កំពុងទាញទិន្នន័យ...
+            </p>
+          </div>
+          <span
+            id="class-count-badge"
+            class="shrink-0 text-[10px] font-bold px-2 py-1 rounded-full border border-line bg-white text-muted"
+          >
+            --
+          </span>
+        </div>
+
+        <!-- 3 cards per row -->
+        <div id="class-list" class="class-grid">
+          <div class="col-span-3 flex justify-center py-14">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer note -->
+      <p class="text-center text-[10px] text-muted/70 pt-3 pb-2">
+        ទិន្នន័យបង្ហាញតែអាន • គ្មានសិទ្ធិកែប្រែ
+      </p>
+    </main>
+
+    <!-- ================= TOAST ================= -->
+    <div
+      id="toast-container"
+      class="fixed top-16 right-3 left-3 sm:left-auto sm:right-4 sm:max-w-xs z-[70] flex flex-col gap-2 pointer-events-none"
+    ></div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        const USERNAME = {{ inst.inst_username|tojson }};
+
+        let classes = [];
+        let subjects = [];
+        let studentCounts = {};
+        let subjectsById = new Map();
+        let classCountsBySubject = new Map();
+        let selectedSubjectId = null;
+
+        const BANNER_THEMES = [
+          {
+            bg: "linear-gradient(135deg, #4b0d12 0%, #7a1f1f 55%, #300609 100%)",
+            accent: "#f0e2b6",
+          },
+          {
+            bg: "linear-gradient(135deg, #09473d 0%, #0f6b5c 55%, #052e27 100%)",
+            accent: "#bbf7d0",
+          },
+          {
+            bg: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #0f172a 100%)",
+            accent: "#93c5fd",
+          },
+          {
+            bg: "linear-gradient(135deg, #78350f 0%, #b45309 55%, #451a03 100%)",
+            accent: "#fde68a",
+          },
+          {
+            bg: "linear-gradient(135deg, #4c1d95 0%, #6d28d9 55%, #2e1065 100%)",
+            accent: "#e9d5ff",
+          },
+          {
+            bg: "linear-gradient(135deg, #7c2d12 0%, #c2410c 55%, #431407 100%)",
+            accent: "#fed7aa",
+          },
+          {
+            bg: "linear-gradient(135deg, #134e4a 0%, #0d9488 55%, #042f2e 100%)",
+            accent: "#99f6e4",
+          },
+        ];
+
+        function getTheme(str) {
+          let hash = 0;
+          const s = String(str || "");
+          for (let i = 0; i < s.length; i++)
+            hash = s.charCodeAt(i) + ((hash << 5) - hash);
+          return BANNER_THEMES[Math.abs(hash) % BANNER_THEMES.length];
+        }
+
+        const escapeHtml = (v) =>
+          String(v ?? "").replace(
+            /[&<>"']/g,
+            (m) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[m],
+          );
+
+        function toast(message, type = "info") {
+          const bg =
+            type === "success"
+              ? "linear-gradient(135deg,#0F6B5C,#0A4F44)"
+              : type === "error"
+                ? "linear-gradient(135deg,#C0392B,#96261A)"
+                : "linear-gradient(135deg,#2E2924,#1A1714)";
+
+          const el = document.createElement("div");
+          el.className =
+            "pointer-events-auto text-white px-3.5 py-2.5 rounded-lg text-[11.5px] font-medium border border-white/10 shadow-lg";
+          el.style.background = bg;
+          el.style.animation = "slideInRight .3s cubic-bezier(.22,1,.36,1) both";
+          el.textContent = message;
+          document.getElementById("toast-container").appendChild(el);
+          setTimeout(() => el.remove(), 3200);
+        }
+
+        async function api(url, options = {}) {
+          const res = await fetch(url, options);
+          let data = null;
+          try {
+            data = await res.json();
+          } catch (_) {}
+          if (!res.ok) {
+            throw new Error(
+              data?.detail || data?.message || `បញ្ហា (${res.status})`,
+            );
+          }
+          return data;
+        }
+
+        /* ========================================================
+         LOAD DATA (read-only)
+      ======================================================== */
+        async function loadData() {
+          try {
+            const data = await api(
+              `/api/public/${encodeURIComponent(USERNAME)}/dashboard`,
+            );
+
+            classes = data.classes || [];
+            subjects = data.subjects || [];
+            studentCounts = data.student_counts || {};
+            subjectsById = new Map(
+              subjects.map((subject) => [String(subject.id), subject]),
+            );
+            classCountsBySubject = new Map();
+            for (const classInfo of classes) {
+              const subjectId = String(classInfo.subject_id);
+              classCountsBySubject.set(
+                subjectId,
+                (classCountsBySubject.get(subjectId) || 0) + 1,
+              );
+            }
+
+            renderStats();
+            renderSubjectChips();
+            renderClassList();
+          } catch (err) {
+            toast(err.message, "error");
+            document.getElementById("class-list").innerHTML = `
+            <div class="col-span-3 rounded-xl bg-white border border-line p-6 text-center">
+              <p class="text-[12px] text-muted">មិនអាចទាញទិន្នន័យបានទេ</p>
+              <p class="text-[10.5px] text-muted/70 mt-1">${escapeHtml(err.message)}</p>
+            </div>
+          `;
+          }
+        }
+
+        /* ========================================================
+         STATS
+      ======================================================== */
+        function renderStats() {
+          const filteredClasses =
+            selectedSubjectId === null
+              ? classes
+              : classes.filter(
+                  (c) => String(c.subject_id) === String(selectedSubjectId),
+                );
+
+          const totalStudents = filteredClasses.reduce(
+            (total, classInfo) =>
+              total + Number(studentCounts[classInfo.id] || 0),
+            0,
+          );
+
+          document.getElementById("stat-subjects").textContent =
+            selectedSubjectId === null ? subjects.length : 1;
+          document.getElementById("stat-classes").textContent =
+            filteredClasses.length;
+          document.getElementById("stat-students").textContent =
+            totalStudents;
+        }
+
+        /* ========================================================
+         SUBJECT CHIPS
+      ======================================================== */
+        function renderSubjectChips() {
+          const container = document.getElementById("subject-chips");
+          const labelEl = document.getElementById("subject-count-label");
+
+          labelEl.textContent = `${subjects.length} មុខវិជ្ជា`;
+
+          const allActive = selectedSubjectId === null;
+
+          let html = `
+          <button
+            type="button"
+            onclick="selectSubject(null)"
+            class="chip ${allActive ? "is-active" : ""}"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            ទាំងអស់
+            <span class="ml-0.5 px-1.5 py-0.5 rounded-full text-[9.5px] font-bold ${
+              allActive ? "bg-white/20 text-white" : "bg-canvas text-muted"
+            }">
+              ${classes.length}
+            </span>
+          </button>
+        `;
+
+          if (!subjects.length) {
+            html += `<span class="chip">គ្មានមុខវិជ្ជា</span>`;
+          } else {
+            html += subjects
+              .map((sub) => {
+                const isActive = String(sub.id) === String(selectedSubjectId);
+                const count = classCountsBySubject.get(String(sub.id)) || 0;
+
+                return `
+                <button
+                  type="button"
+                  onclick="selectSubject('${sub.id}')"
+                  class="chip ${isActive ? "is-active" : ""}"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                  <span class="truncate max-w-[120px]">${escapeHtml(sub.name)}</span>
+                  <span class="ml-0.5 px-1.5 py-0.5 rounded-full text-[9.5px] font-bold ${
+                    isActive ? "bg-white/20 text-white" : "bg-canvas text-muted"
+                  }">
+                    ${count}
+                  </span>
+                </button>
+              `;
+              })
+              .join("");
+          }
+
+          container.innerHTML = html;
+        }
+
+        function selectSubject(subjectId) {
+          selectedSubjectId = subjectId !== null ? String(subjectId) : null;
+          renderStats();
+          renderSubjectChips();
+          renderClassList();
+        }
+
+        /* ========================================================
+         CLASS LIST — COMPACT (3 per row)
+      ======================================================== */
+        function renderClassList() {
+          const container = document.getElementById("class-list");
+          const titleEl = document.getElementById("class-section-title");
+          const subEl = document.getElementById("class-section-sub");
+          const badgeEl = document.getElementById("class-count-badge");
+
+          const curSubject =
+            selectedSubjectId !== null
+              ? subjectsById.get(String(selectedSubjectId))
+              : null;
+
+          const filteredClasses =
+            selectedSubjectId === null
+              ? classes
+              : classes.filter(
+                  (c) => String(c.subject_id) === String(selectedSubjectId),
+                );
+
+          titleEl.textContent = curSubject
+            ? curSubject.name
+            : "បន្ទប់ថ្នាក់ទាំងអស់";
+          subEl.textContent = `${filteredClasses.length} បន្ទប់ថ្នាក់កំពុងដំណើរការ`;
+          badgeEl.textContent = `${filteredClasses.length} ថ្នាក់`;
+
+          if (!filteredClasses.length) {
+            container.innerHTML = `
+            <div class="col-span-3 rounded-xl bg-white border border-line p-8 text-center">
+              <div class="w-12 h-12 rounded-xl bg-canvas border border-line grid place-items-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+              </div>
+              <h3 class="font-moul text-[13px] text-ink">មិនទាន់មានថ្នាក់</h3>
+              <p class="text-[11px] text-muted mt-1">
+                ${
+                  curSubject
+                    ? `មិនទាន់មានថ្នាក់សម្រាប់មុខវិជ្ជា "${escapeHtml(curSubject.name)}" នៅឡើយទេ`
+                    : "មិនទាន់មានទិន្នន័យថ្នាក់រៀននៅឡើយទេ"
+                }
+              </p>
+            </div>
+          `;
+            return;
+          }
+
+          container.innerHTML = filteredClasses
+            .map((c) => {
+              const theme = getTheme(c.class_name);
+              const slot =
+                c.time_slots && c.time_slots.length > 0 ? c.time_slots[0] : null;
+              const subObj = subjectsById.get(String(c.subject_id));
+              const subjectName = subObj
+                ? subObj.name
+                : slot?.subject || "មុខវិជ្ជាទូទៅ";
+
+              // Compact time: "7:00-9:00" (drop period if long)
+              let timeDisplay = "—";
+              if (slot) {
+                const sT = String(slot.start_time || "").trim();
+                const eT = String(slot.end_time || "").trim();
+                timeDisplay = `${sT} - ${eT}`;
+              }
+
+              const studentCount = Number(studentCounts[c.id] || 0);
+
+              return `
+              <a
+                class="class-card-compact"
+                href="/public/${encodeURIComponent(USERNAME)}/mobile-students?class_id=${encodeURIComponent(c.id)}"
+                aria-label="មើលព័ត៌មាន ${escapeHtml(c.class_name)}"
+              >
+                <!-- Compact Banner -->
+                <div class="class-banner-compact" style="background: ${theme.bg};">
+                  <svg class="banner-watermark-sm" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+                  </svg>
+
+                  <span class="banner-badge-sm">ថ្នាក់</span>
+
+                  <span class="banner-count-sm" title="ចំនួនសិស្ស">
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"
+                        d="M17 20a4 4 0 00-8 0M13 11a4 4 0 100-8 4 4 0 000 8z"/>
+                    </svg>
+                    ${studentCount}
+                  </span>
+
+                  <h3 class="class-title-compact" title="${escapeHtml(c.class_name)}">
+                    ${escapeHtml(c.class_name)}
+                  </h3>
+
+                  <div class="banner-accent-line" style="background: ${theme.accent};"></div>
+                </div>
+
+                <!-- Compact Info -->
+                <div class="class-info-compact">
+                  <p class="info-subject" title="${escapeHtml(subjectName)}">
+                    ${escapeHtml(subjectName)}
+                  </p>
+                  <p class="info-time" title="${escapeHtml(timeDisplay)}">
+                    <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="truncate">${escapeHtml(timeDisplay)}</span>
+                  </p>
+                  <div class="info-students">
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"
+                        d="M17 20a4 4 0 00-8 0M13 11a4 4 0 100-8 4 4 0 000 8z"/>
+                    </svg>
+                    <span>${studentCount} នាក់</span>
+                  </div>
+                </div>
+              </a>
+            `;
+            })
+            .join("");
+        }
+
+        /* ========================================================
+         INIT
+      ======================================================== */
+        loadData();
+    </script>
+  </body>
+</html>

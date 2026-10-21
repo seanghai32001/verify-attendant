@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>គ្រប់គ្រងសិស្ស - {{ inst.institution_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              maroon: { DEFAULT: "#7A1F1F", dark: "#4B0D12", soft: "#F7EAEA" },
+              gold: { DEFAULT: "#C9A227", light: "#F0E2B6", soft: "#FBF3DF" },
+              jade: { DEFAULT: "#0F6B5C", dark: "#0A4F44", soft: "#EAF5F2" },
+              ink: "#211D19",
+              muted: "#7B7268",
+              line: "#E7E1D7",
+              canvas: "#F6F4F0",
+            },
+            fontFamily: {
+              khmer: ['"Kantumruy Pro"', "sans-serif"],
+              moul: ['"Moul"', "serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+        background: #f6f4f0;
+        color: #211d19;
+      }
+      .excel-table td {
+        border-bottom: 1px solid #e7e1d7;
+      }
+      .toast {
+        animation: fadeUp 0.3s ease both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header
+      class="sticky top-0 z-40 text-white shadow-lg"
+      style="background: linear-gradient(120deg, #4b0d12, #7a1f1f, #4b0d12)"
+    >
+      <div
+        class="mx-auto max-w-[1400px] px-4 h-14 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3 min-w-0">
+          {% if inst.profile_image_url %}
+          <img
+            src="{{ inst.profile_image_url }}"
+            class="w-9 h-9 rounded-full object-cover border-2 border-gold/60"
+            alt=""
+          />
+          {% else %}
+          <div
+            class="w-9 h-9 rounded-full bg-jade grid place-items-center font-bold border-2 border-gold/60"
+          >
+            {{ inst.institution_name[0] }}
+          </div>
+          {% endif %}
+          <div class="min-w-0">
+            <p
+              class="text-[9px] uppercase tracking-widest text-gold/80 font-semibold"
+            >
+              គ្រប់គ្រងសិស្ស
+            </p>
+            <h1 class="font-moul text-sm truncate">
+              {{ inst.institution_name }}
+            </h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a
+            href="/manage/{{ inst.inst_username }}/dashboard"
+            class="text-xs bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1.5 rounded-lg transition"
+            >← ត្រឡប់</a
+          >
+          <a
+            href="/manage/{{ inst.inst_username }}/logout"
+            class="text-xs bg-white/10 hover:bg-red-600 border border-white/20 px-3 py-1.5 rounded-lg transition"
+            >ចាកចេញ</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 mx-auto w-full max-w-[1400px] px-4 py-5 space-y-5">
+      <section
+        id="slotContext"
+        class="hidden border-l-4 border-jade bg-white px-4 py-3 shadow-sm rounded-r-lg"
+      >
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-jade">
+          បញ្ជីសិស្សតាមថ្នាក់
+        </p>
+        <h2 id="slotContextTitle" class="mt-1 font-moul text-sm text-ink"></h2>
+        <p id="slotContextDetails" class="mt-1 text-xs text-muted"></p>
+      </section>
+
+      <!-- Toolbar -->
+      <div
+        class="bg-white rounded-xl border border-line shadow-sm p-4 flex flex-wrap items-center gap-3 justify-between"
+      >
+        <div class="flex flex-wrap items-center gap-2">
+          <select
+            id="filterClass"
+            class="text-sm border border-line rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-jade/30 outline-none"
+          >
+            <option value="">-- ថ្នាក់ទាំងអស់ --</option>
+          </select>
+          <input
+            id="searchStudent"
+            type="text"
+            placeholder="ស្វែងរកឈ្មោះ / ព័ត៌មាន Telegram..."
+            class="text-sm border border-line rounded-lg px-3 py-2 w-64 focus:ring-2 focus:ring-jade/30 outline-none"
+          />
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- ប៊ូតុងទាញយកគំរូ Excel -->
+          <button
+            onclick="downloadExcelTemplate()"
+            title="ទាញយកឯកសារ Excel គំរូសម្រាប់បំពេញទិន្នន័យ"
+            class="text-sm border border-line bg-canvas hover:bg-white text-ink px-3 py-2 rounded-lg font-medium transition shadow-sm flex items-center gap-1.5"
+          >
+            <span>📥</span> គំរូ Excel
+          </button>
+
+          <!-- ប៊ូតុង Import Excel -->
+          <button
+            onclick="triggerImportExcel()"
+            title="បញ្ចូលទិន្នន័យសិស្សច្រើនក្នុងពេលតែមួយតាមរយៈ Excel"
+            class="text-sm bg-jade/10 text-jade border border-jade/30 hover:bg-jade hover:text-white px-3.5 py-2 rounded-lg font-semibold transition shadow-sm flex items-center gap-1.5"
+          >
+            <span>📤</span> នាំចូល Excel
+          </button>
+          <input
+            type="file"
+            id="excelFileInput"
+            class="hidden"
+            accept=".xlsx, .xls, .csv"
+            onchange="handleExcelFileSelect(this)"
+          />
+
+          <!-- ប៊ូតុងបន្ថែមដោយដៃ -->
+          <button
+            onclick="addRow()"
+            class="text-sm bg-jade text-white px-3.5 py-2 rounded-lg font-semibold hover:bg-jade-dark transition shadow-sm"
+          >
+            + បន្ថែមជួរ
+          </button>
+
+          <!-- ប៊ូតុងផ្ញើសារ -->
+          <button
+            onclick="openMessageComposer()"
+            id="btnSendSelected"
+            disabled
+            class="text-sm bg-maroon text-white px-3.5 py-2 rounded-lg font-semibold hover:bg-maroon-dark transition disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+          >
+            ផ្ញើសារទៅអាណាព្យាបាល (<span id="selectedCount">0</span>)
+          </button>
+        </div>
+      </div>
+
+
+      <!-- Message Composer -->
+      <section
+        id="messageComposer"
+        class="hidden bg-white rounded-xl border border-line shadow-sm p-4 space-y-3"
+      >
+        <div class="flex items-center justify-between gap-3 border-b border-line pb-2">
+          <h2 class="font-semibold text-sm text-maroon flex items-center gap-1.5">
+            <span>✉️</span> ផ្ញើសារ Telegram ទៅអាណាព្យាបាល
+          </h2>
+          <button
+            onclick="closeMessageComposer()"
+            class="text-muted hover:text-ink font-bold text-sm"
+            aria-label="បិទ"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="grid gap-3 md:grid-cols-[minmax(220px,1fr)_2fr]">
+          <label class="text-xs font-semibold">
+            ជ្រើស Template សារ
+            <select
+              id="messageTemplate"
+              class="mt-1 w-full border border-line rounded-lg px-3 py-2 text-sm font-normal outline-none focus:ring-2 focus:ring-jade/30"
+            >
+              <option value="">សរសេរសារដោយដៃ</option>
+            </select>
+          </label>
+          <label class="text-xs font-semibold">
+            ខ្លឹមសារសារ
+            <textarea
+              id="messageContent"
+              rows="4"
+              class="mt-1 w-full border border-line rounded-lg px-3 py-2 text-sm font-normal outline-none focus:ring-2 focus:ring-jade/30"
+              placeholder="សួស្តី អាណាព្យាបាលនៃ {student_name}..."
+            ></textarea>
+          </label>
+        </div>
+        <p class="text-xs text-muted">
+          អាចប្រើ {student_name}, {class_name}, {subject}, {start_time},
+          {end_time}, {date}, {note} ក្នុងសារ។
+        </p>
+        <div class="flex justify-end gap-2 pt-2 border-t border-line">
+          <button
+            onclick="closeMessageComposer()"
+            class="text-sm border border-line px-3 py-1.5 rounded-lg hover:bg-gray-50"
+          >
+            បោះបង់
+          </button>
+          <button
+            onclick="sendSelectedMessage()"
+            id="btnSendMessage"
+            class="text-sm bg-jade text-white px-4 py-1.5 rounded-lg font-semibold hover:bg-jade-dark transition shadow-sm disabled:opacity-50"
+          >
+            ផ្ញើសារឥឡូវនេះ
+          </button>
+        </div>
+      </section>
+
+      <!-- Excel-like Table -->
+      <div
+        class="bg-white rounded-xl border border-line shadow-sm overflow-hidden"
+      >
+        <div class="overflow-x-auto">
+          <table class="w-full excel-table text-sm min-w-[700px]">
+            <thead>
+              <tr class="bg-[#f5f1ea] text-left text-xs uppercase text-muted">
+                <th class="px-3 py-3 w-12 text-center">
+                  <input
+                    id="selectVisibleStudents"
+                    type="checkbox"
+                    aria-label="ជ្រើសសិស្សទាំងអស់ដែលកំពុងបង្ហាញ"
+                    onchange="toggleVisibleSelection(this)"
+                  />
+                </th>
+                <th class="px-3 py-3 w-12 text-center">#</th>
+                <th class="px-3 py-3">ឈ្មោះសិស្ស</th>
+                <th class="px-3 py-3">ព័ត៌មានទំនាក់ទំនង Telegram (លេខទូរសព្ទ / Username / Link / ID)</th>
+                <th class="px-3 py-3">ថ្នាក់</th>
+                <th class="px-3 py-3">កំណត់សម្គាល់</th>
+                <th class="px-3 py-3 w-32 text-center">សកម្មភាព</th>
+              </tr>
+            </thead>
+            <tbody id="studentBody"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="hidden p-10 text-center text-muted text-sm">
+          មិនទាន់មានសិស្សទេ — ចុច «បន្ថែមជួរ» ឬ «នាំចូល Excel» ដើម្បីចាប់ផ្ដើម
+        </div>
+      </div>
+
+      <!-- Telegram Status Bar -->
+      <div
+        id="tgBar"
+        class="bg-white rounded-xl border border-line shadow-sm p-4 flex flex-wrap items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-2 text-sm">
+          <span class="font-semibold">Telegram ស្ថាប័ន:</span>
+          <span id="tgStatus" class="text-muted">កំពុងពិនិត្យ...</span>
+        </div>
+        <a
+          href="/manage/{{ inst.inst_username }}/telegram"
+          class="text-xs bg-jade/10 text-jade border border-jade/30 px-3 py-1.5 rounded-lg font-semibold hover:bg-jade hover:text-white transition"
+        >
+          កំណត់ / ភ្ជាប់ Telegram
+        </a>
+      </div>
+    </main>
+
+    <!-- Modal: បញ្ជាក់ការលុប (Custom Confirmation Pop-up Alert) -->
+    <div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
+      <div id="confirmModalBox" class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-line p-5 text-center transform transition-all scale-95 duration-200">
+        <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
+          ⚠️
+        </div>
+        <h3 id="confirmTitle" class="font-moul text-sm text-ink mb-2">បញ្ជាក់ការលុប</h3>
+        <p id="confirmMessage" class="text-xs text-muted mb-5 leading-relaxed">
+          តើអ្នកពិតជាចង់លុបសិស្សនេះមែនទេ?
+        </p>
+        <div class="flex items-center justify-center gap-2">
+          <button id="btnConfirmCancel" class="flex-1 py-2 text-xs font-semibold rounded-lg border border-line text-muted hover:bg-canvas transition">
+            បោះបង់
+          </button>
+          <button id="btnConfirmOk" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-sm transition">
+            លុបចេញ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: ផ្ទៀងផ្ទាត់ទិន្នន័យនាំចូលពី Excel (Import Preview Modal) -->
+    <div id="importModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
+      <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden border border-line flex flex-col max-h-[85vh]">
+        <div class="px-4 py-3 bg-gradient-to-r from-jade to-jade-dark text-white flex items-center justify-between">
+          <h3 class="font-moul text-sm flex items-center gap-2">
+            <span>📥</span> ផ្ទៀងផ្ទាត់ទិន្នន័យនាំចូលពី Excel
+          </h3>
+          <button onclick="closeImportModal()" class="text-white/80 hover:text-white font-bold">✕</button>
+        </div>
+        <div class="p-4 space-y-3 flex-1 overflow-y-auto">
+          <div class="flex flex-wrap items-center justify-between gap-2 p-3 bg-canvas border border-line rounded-lg text-xs">
+            <div>
+              រកឃើញទិន្នន័យសរុប៖ <span id="importCount" class="font-bold text-jade">0</span> នាក់
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-muted">ថ្នាក់លំនាំដើម (ប្រសិន Excel គ្មានបញ្ជាក់)៖</span>
+              <select id="importDefaultClass" class="border border-line rounded px-2 py-1 bg-white text-xs outline-none">
+                <!-- ថ្នាក់ទាំងអស់ -->
+              </select>
+            </div>
+          </div>
+          <div class="border border-line rounded-lg overflow-x-auto max-h-60">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 text-muted border-b border-line sticky top-0">
+                <tr>
+                  <th class="p-2 w-8 text-center">#</th>
+                  <th class="p-2">ឈ្មោះសិស្ស</th>
+                  <th class="p-2">ព័ត៌មាន Telegram</th>
+                  <th class="p-2">ថ្នាក់</th>
+                  <th class="p-2">កំណត់សម្គាល់</th>
+                </tr>
+              </thead>
+              <tbody id="importPreviewBody" class="divide-y divide-line"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="p-3 border-t border-line bg-canvas flex justify-end gap-2">
+          <button onclick="closeImportModal()" class="px-4 py-1.5 text-xs rounded-lg border border-line hover:bg-gray-100">
+            បោះបង់
+          </button>
+          <button onclick="submitImportExcel()" id="btnConfirmImport" class="px-4 py-1.5 text-xs rounded-lg font-semibold bg-jade text-white hover:bg-jade-dark transition">
+            បញ្ជាក់ និងនាំចូល
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: បង្ហាញលទ្ធផលផ្ញើសារ -->
+    <div id="resultModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden">
+      <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full overflow-hidden border border-line flex flex-col max-h-[85vh]">
+        <div class="px-4 py-3 bg-gradient-to-r from-maroon to-maroon-dark text-white flex items-center justify-between">
+          <h3 class="font-moul text-sm">របាយការណ៍ផ្ញើសារ Telegram</h3>
+          <button onclick="closeResultModal()" class="text-white/80 hover:text-white font-bold">✕</button>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto space-y-2" id="resultModalContent">
+          <!-- បញ្ជីលទ្ធផល -->
+        </div>
+        <div class="p-3 border-t border-line bg-canvas flex justify-end">
+          <button onclick="closeResultModal()" class="btn bg-jade text-white px-4 py-1.5 rounded-lg text-xs font-semibold">យល់ព្រម</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-[60] hidden">
+      <div
+        id="toastBox"
+        class="toast bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg text-sm"
+      ></div>
+    </div>
+
+    <script>
+      const USERNAME = "{{ inst.inst_username }}";
+      let classes = [];
+      let classNamesById = new Map();
+      let students = [];
+      let messageTemplates = [];
+      let parsedImportStudents = [];
+      const selectedStudentIds = new Set();
+      let rowIdCounter = 0;
+      const initialRoute = new URLSearchParams(window.location.search);
+      const initialClassId = initialRoute.get("class_id");
+      const initialSlotId = initialRoute.get("slot_id");
+      let slotScopeLocked = false;
+      let xlsxLoadPromise;
+
+      function loadXlsx() {
+        if (window.XLSX) return Promise.resolve(window.XLSX);
+        if (!xlsxLoadPromise) {
+          xlsxLoadPromise = new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src =
+              "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+            script.onload = () => {
+              if (window.XLSX) {
+                resolve(window.XLSX);
+              } else {
+                xlsxLoadPromise = null;
+                reject(new Error("Excel library loaded without XLSX API"));
+              }
+            };
+            script.onerror = () => {
+              xlsxLoadPromise = null;
+              reject(new Error("មិនអាចផ្ទុកបណ្ណាល័យ Excel បានទេ"));
+            };
+            document.head.appendChild(script);
+          });
+        }
+        return xlsxLoadPromise;
+      }
+
+      function toast(msg, type = "info") {
+        const el = document.getElementById("toast");
+        const box = document.getElementById("toastBox");
+        box.className = `toast text-white px-4 py-3 rounded-lg shadow-lg text-sm ${type === "success" ? "bg-green-600" : type === "error" ? "bg-red-600" : "bg-gray-800"}`;
+        box.textContent = msg;
+        el.classList.remove("hidden");
+        setTimeout(() => el.classList.add("hidden"), 3500);
+      }
+
+      // ============================================================
+      // CUSTOM CONFIRM POP-UP ALERT (ជំនួស Browser confirm)
+      // ============================================================
+      function showConfirmDialog({
+        title = "បញ្ជាក់ការលុប",
+        message = "តើអ្នកពិតជាចង់ធ្វើសកម្មភាពនេះមែនទេ?",
+        confirmText = "លុបចេញ",
+        cancelText = "បោះបង់",
+      } = {}) {
+        return new Promise((resolve) => {
+          const modal = document.getElementById("confirmModal");
+          const box = document.getElementById("confirmModalBox");
+          const titleEl = document.getElementById("confirmTitle");
+          const msgEl = document.getElementById("confirmMessage");
+          const btnOk = document.getElementById("btnConfirmOk");
+          const btnCancel = document.getElementById("btnConfirmCancel");
+
+          titleEl.textContent = title;
+          msgEl.textContent = message;
+          btnOk.textContent = confirmText;
+          btnCancel.textContent = cancelText;
+
+          modal.classList.remove("hidden");
+          setTimeout(() => {
+            box.classList.remove("scale-95");
+            box.classList.add("scale-100");
+          }, 10);
+
+          function cleanup(result) {
+            box.classList.remove("scale-100");
+            box.classList.add("scale-95");
+            setTimeout(() => {
+              modal.classList.add("hidden");
+            }, 150);
+            btnOk.onclick = null;
+            btnCancel.onclick = null;
+            resolve(result);
+          }
+
+          btnOk.onclick = () => cleanup(true);
+          btnCancel.onclick = () => cleanup(false);
+        });
+      }
+
+      async function api(url, opts = {}) {
+        const r = await fetch(url, opts);
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || data.detail || "មានបញ្ហា");
+        return data;
+      }
+
+      async function loadClasses() {
+        const res = await api(`/api/manage/${USERNAME}/classes`);
+        classes = res.classes || [];
+        classNamesById = new Map(
+          classes.map((classInfo) => [String(classInfo.id), classInfo.class_name]),
+        );
+        const sel = document.getElementById("filterClass");
+        sel.innerHTML =
+          '<option value="">-- ថ្នាក់ទាំងអស់ --</option>' +
+          classes
+            .map(
+              (classInfo) =>
+                `<option value="${classInfo.id}">${esc(classInfo.class_name)}</option>`,
+            )
+            .join("");
+        const routeClassExists = classes.some(
+          (c) => String(c.id) === initialClassId,
+        );
+        if (routeClassExists) {
+          sel.value = initialClassId;
+        }
+        const selectedClass = classes.find(
+          (classInfo) => String(classInfo.id) === initialClassId,
+        );
+        const selectedSlot = selectedClass?.time_slots?.[0];
+        slotScopeLocked = Boolean(routeClassExists && selectedClass);
+        sel.classList.toggle("hidden", slotScopeLocked);
+        document
+          .getElementById("slotContext")
+          .classList.toggle("hidden", !slotScopeLocked);
+        if (slotScopeLocked) {
+          document.getElementById("slotContextTitle").textContent =
+            selectedClass.class_name;
+          document.getElementById("slotContextDetails").textContent =
+            `មុខវិជ្ជា៖ ${selectedSlot?.subject || selectedClass.class_name} · ម៉ោង៖ ${selectedSlot?.start_time || ""}-${selectedSlot?.end_time || ""}`;
+        }
+      }
+
+      async function loadStudents() {
+        const classId = document.getElementById("filterClass").value;
+        const query = new URLSearchParams();
+        if (classId) query.set("class_id", classId);
+        if (slotScopeLocked && initialSlotId) query.set("slot_id", initialSlotId);
+        const queryString = query.toString();
+        const url = `/api/manage/${USERNAME}/students${queryString ? `?${queryString}` : ""}`;
+        const res = await api(url);
+        students = res.students || [];
+        renderTable();
+      }
+
+      async function loadTgStatus() {
+        try {
+          const res = await api(`/api/manage/${USERNAME}/telegram/status`);
+          const el = document.getElementById("tgStatus");
+          if (res.connected) {
+            el.innerHTML = `<span class="text-jade font-semibold">● ភ្ជាប់រួច</span> (${res.account_name || res.phone})`;
+          } else {
+            el.innerHTML = `<span class="text-red-500 font-semibold">● មិនទាន់ភ្ជាប់</span> (សូមភ្ជាប់ Telegram ជាមុន ដើម្បីអាចផ្ញើសារបាន)`;
+          }
+        } catch {
+          document.getElementById("tgStatus").textContent = "មិនអាចពិនិត្យបាន";
+        }
+      }
+
+      async function loadMessageTemplates() {
+        const result = await api(`/api/manage/${USERNAME}/templates`);
+        messageTemplates = result.templates || [];
+        const select = document.getElementById("messageTemplate");
+        select.innerHTML =
+          '<option value="">-- ជ្រើសរើស Template ឬ សរសេរដោយដៃ --</option>' +
+          messageTemplates
+            .map(
+              (item) => `<option value="${item.id}">${esc(item.name)}</option>`,
+            )
+            .join("");
+        if (messageTemplates.length) {
+          select.value = messageTemplates[0].id;
+          document.getElementById("messageContent").value = messageTemplates[0].content;
+        }
+      }
+
+      // ============================================================
+      // EXCEL TEMPLATE & BATCH IMPORT
+      // ============================================================
+      async function downloadExcelTemplate() {
+        let XLSX;
+        try {
+          XLSX = await loadXlsx();
+        } catch (err) {
+          toast(err.message, "error");
+          return;
+        }
+        const sampleClassName = classes.length ? classes[0].class_name : "គណិតវិទ្យា";
+        const templateData = [
+          {
+            "ឈ្មោះសិស្ស": "សុខ វិសាល",
+            "ព័ត៌មាន Telegram / លេខទូរសព្ទ": "012345678",
+            "ថ្នាក់រៀន": sampleClassName,
+            "កំណត់សម្គាល់": "សិស្សពូកែ",
+          },
+          {
+            "ឈ្មោះសិស្ស": "ចាន់ ធីតា",
+            "ព័ត៌មាន Telegram / លេខទូរសព្ទ": "@chan_thida_parent",
+            "ថ្នាក់រៀន": sampleClassName,
+            "កំណត់សម្គាល់": "",
+          },
+          {
+            "ឈ្មោះសិស្ស": "ហេង ដារ៉ា",
+            "ព័ត៌មាន Telegram / លេខទូរសព្ទ": "https://t.me/heng_dara",
+            "ថ្នាក់រៀន": sampleClassName,
+            "កំណត់សម្គាល់": "សុំអនុញ្ញាតថ្ងៃចន្ទ",
+          },
+          {
+            "ឈ្មោះសិស្ស": "កែវ សុភា",
+            "ព័ត៌មាន Telegram / លេខទូរសព្ទ": "1234567890",
+            "ថ្នាក់រៀន": sampleClassName,
+            "កំណត់សម្គាល់": "Telegram ID សុទ្ធ",
+          },
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        ws["!cols"] = [
+          { wch: 22 },
+          { wch: 32 },
+          { wch: 22 },
+          { wch: 25 },
+        ];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "គំរូបញ្ចូលសិស្ស");
+        XLSX.writeFile(wb, "គំរូ_បញ្ចូលសិស្ស_Telegram.xlsx");
+        toast("បានទាញយកឯកសារគំរូជោគជ័យ", "success");
+      }
+
+      async function triggerImportExcel() {
+        try {
+          await loadXlsx();
+        } catch (err) {
+          toast(err.message, "error");
+          return;
+        }
+        const fileInput = document.getElementById("excelFileInput");
+        fileInput.value = "";
+        fileInput.click();
+      }
+
+      function handleExcelFileSelect(input) {
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+            if (!rawRows.length) {
+              toast("ឯកសារគ្មានទិន្នន័យទេ", "error");
+              return;
+            }
+
+            parsedImportStudents = [];
+            for (const r of rawRows) {
+              let name = "";
+              let phone = "";
+              let cName = "";
+              let note = "";
+
+              for (const [k, v] of Object.entries(r)) {
+                const lk = k.trim().toLowerCase();
+                const strVal = String(v).trim();
+                if (lk.includes("ឈ្មោះ") || lk.includes("name") || lk.includes("student")) {
+                  if (!name) name = strVal;
+                } else if (lk.includes("phone") || lk.includes("ទូរសព្ទ") || lk.includes("telegram") || lk.includes("contact") || lk.includes("លេខ")) {
+                  if (!phone) phone = strVal;
+                } else if (lk.includes("ថ្នាក់") || lk.includes("class") || lk.includes("subject")) {
+                  if (!cName) cName = strVal;
+                } else if (lk.includes("ចំណាំ") || lk.includes("note") || lk.includes("កំណត់")) {
+                  if (!note) note = strVal;
+                }
+              }
+
+              if (name) {
+                parsedImportStudents.push({
+                  student_name: name,
+                  phone: phone,
+                  class_name: cName,
+                  note: note,
+                });
+              }
+            }
+
+            if (!parsedImportStudents.length) {
+              toast("រកមិនឃើញទិន្នន័យឈ្មោះសិស្សក្នុងឯកសារនេះទេ", "error");
+              return;
+            }
+
+            openImportPreview();
+          } catch (err) {
+            toast("បរាជ័យក្នុងការអានឯកសារ Excel: " + err.message, "error");
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      function openImportPreview() {
+        const modal = document.getElementById("importModal");
+        const tbody = document.getElementById("importPreviewBody");
+        const defaultClassSelect = document.getElementById("importDefaultClass");
+        document.getElementById("importCount").textContent = parsedImportStudents.length;
+
+        const currentFilterClass = document.getElementById("filterClass").value;
+        defaultClassSelect.innerHTML = classes
+          .map((c) => `<option value="${c.id}" ${String(c.id) === currentFilterClass ? "selected" : ""}>${esc(c.class_name)}</option>`)
+          .join("");
+
+        tbody.innerHTML = parsedImportStudents
+          .map(
+            (s, idx) => `
+          <tr class="hover:bg-slate-50">
+            <td class="p-2 text-center text-muted font-mono">${idx + 1}</td>
+            <td class="p-2 font-medium text-ink">${esc(s.student_name)}</td>
+            <td class="p-2 font-mono text-jade">${esc(s.phone || "-")}</td>
+            <td class="p-2 text-muted">${esc(s.class_name || "(ប្រើថ្នាក់លំនាំដើម)")}</td>
+            <td class="p-2 text-muted text-[11px]">${esc(s.note || "-")}</td>
+          </tr>
+        `,
+          )
+          .join("");
+
+        modal.classList.remove("hidden");
+      }
+
+      function closeImportModal() {
+        document.getElementById("importModal").classList.add("hidden");
+        parsedImportStudents = [];
+      }
+
+      async function submitImportExcel() {
+        if (!parsedImportStudents.length) return;
+        const btn = document.getElementById("btnConfirmImport");
+        const defaultClassId = Number(document.getElementById("importDefaultClass").value);
+
+        btn.disabled = true;
+        btn.textContent = "កំពុងនាំចូល...";
+
+        try {
+          const payloadStudents = parsedImportStudents.map((s) => {
+            let matchedClass = classes.find(
+              (c) => c.class_name.trim().toLowerCase() === s.class_name.trim().toLowerCase(),
+            );
+            return {
+              student_name: s.student_name,
+              phone: s.phone,
+              class_id: matchedClass ? matchedClass.id : defaultClassId,
+              class_name: s.class_name,
+              note: s.note,
+              ...(slotScopeLocked && initialSlotId ? { slot_ids: [Number(initialSlotId)] } : {}),
+            };
+          });
+
+          const result = await api(`/api/manage/${USERNAME}/students/batch`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ students: payloadStudents }),
+          });
+
+          toast(result.message, "success");
+          closeImportModal();
+          await loadStudents();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "បញ្ជាក់ និងនាំចូល";
+        }
+      }
+
+      // ============================================================
+      // COMPOSER & ACTIONS
+      // ============================================================
+      function openMessageComposer() {
+        if (!selectedStudentIds.size) {
+          toast("សូមចុចជ្រើសរើសសិស្សជាមុន", "error");
+          return;
+        }
+        document.getElementById("messageComposer").classList.remove("hidden");
+        document
+          .getElementById("messageComposer")
+          .scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function closeMessageComposer() {
+        document.getElementById("messageComposer").classList.add("hidden");
+      }
+
+      function closeResultModal() {
+        document.getElementById("resultModal").classList.add("hidden");
+      }
+
+      async function sendSelectedMessage() {
+        const studentIds = [...selectedStudentIds];
+        const message = document.getElementById("messageContent").value.trim();
+        if (!studentIds.length || !message) {
+          toast("សូមជ្រើសសិស្ស និងបញ្ចូលខ្លឹមសារសារ", "error");
+          return;
+        }
+        const button = document.getElementById("btnSendMessage");
+        button.disabled = true;
+        button.textContent = "កំពុងផ្ញើទៅ Telegram...";
+        try {
+          const result = await api(`/api/manage/${USERNAME}/telegram/send`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              student_ids: studentIds,
+              custom_message: message,
+              ...(slotScopeLocked
+                ? {
+                    class_id: Number(initialClassId),
+                    slot_id: initialSlotId ? Number(initialSlotId) : null,
+                  }
+                : {}),
+              date: new Date().toISOString().slice(0, 10),
+            }),
+          });
+
+          closeMessageComposer();
+
+          const modalContent = document.getElementById("resultModalContent");
+          modalContent.innerHTML = `
+            <div class="mb-3 p-3 bg-canvas rounded-lg text-xs font-semibold">
+              ${result.message}
+            </div>
+            <div class="space-y-1.5">
+              ${(result.results || []).map(r => `
+                <div class="p-2.5 rounded-lg border text-xs flex items-center justify-between ${r.ok ? 'bg-jade-soft border-jade/30 text-jade' : 'bg-red-50 border-red-200 text-red-600'}">
+                  <div>
+                    <span class="font-bold">${esc(r.student)}</span>
+                    <span class="text-[11px] text-muted ml-1">(${esc(r.phone)})</span>
+                  </div>
+                  <div class="font-semibold text-right">
+                    ${r.ok ? '✓ ផ្ញើជោគជ័យ' : `✗ បរាជ័យ: ${esc(r.error)}`}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          document.getElementById("resultModal").classList.remove("hidden");
+
+        } catch (error) {
+          toast(error.message, "error");
+        } finally {
+          button.disabled = false;
+          button.textContent = "ផ្ញើសារឥឡូវនេះ";
+        }
+      }
+
+      function classOptions(selectedId) {
+        return classes
+          .map(
+            (c) =>
+              `<option value="${c.id}" ${c.id == selectedId ? "selected" : ""}>${esc(c.class_name)}</option>`,
+          )
+          .join("");
+      }
+
+      function className(classId) {
+        return classNamesById.get(String(classId)) || "-";
+      }
+
+      function renderTable() {
+        const body = document.getElementById("studentBody");
+        const empty = document.getElementById("emptyState");
+        const q = (
+          document.getElementById("searchStudent").value || ""
+        ).toLowerCase();
+
+        let list = students;
+        if (q) {
+          list = list.filter(
+            (s) =>
+              (s.student_name || "").toLowerCase().includes(q) ||
+              (s.phone || "").toLowerCase().includes(q),
+          );
+        }
+
+        if (!list.length) {
+          body.innerHTML = "";
+          empty.textContent =
+            "មិនទាន់មានសិស្សទេ — ចុច «បន្ថែមជួរ» ឬ «នាំចូល Excel» ដើម្បីចាប់ផ្ដើម";
+          empty.classList.remove("hidden");
+          updateSelectionControls();
+          return;
+        }
+        empty.classList.add("hidden");
+
+        body.innerHTML = list
+          .map((s, i) => {
+            const editing = Boolean(s._editing);
+            const selected = s.id && selectedStudentIds.has(Number(s.id));
+
+            if (editing) {
+              return `
+              <tr data-id="${s.id || ""}" data-temp="${s._temp || ""}" data-editing="true" class="bg-gold/10">
+                <td class="px-3 py-2 text-center">
+                  <input type="checkbox" disabled class="accent-[#0f6b5c] opacity-40">
+                </td>
+                <td class="px-3 py-2 text-muted text-xs text-center font-mono">${i + 1}</td>
+                <td class="px-2 py-1.5">
+                  <input type="text" class="f-name border border-jade/40 rounded px-2.5 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-jade/30 w-full" value="${esc(s.student_name)}" placeholder="ឈ្មោះសិស្ស">
+                </td>
+                <td class="px-2 py-1.5">
+                  <input type="text" class="f-phone border border-jade/40 rounded px-2.5 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-jade/30 w-full font-mono" value="${esc(s.phone)}" placeholder="012... / @user / t.me/... / ID">
+                </td>
+                <td class="px-2 py-1.5">
+                  <select class="f-class border border-jade/40 rounded px-2.5 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-jade/30 w-full" ${slotScopeLocked ? "disabled" : ""}>
+                    ${classOptions(s.class_id)}
+                  </select>
+                </td>
+                <td class="px-2 py-1.5">
+                  <input type="text" class="f-note border border-jade/40 rounded px-2.5 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-jade/30 w-full" value="${esc(s.note || "")}" placeholder="កំណត់សម្គាល់">
+                </td>
+                <td class="px-3 py-2 text-center whitespace-nowrap">
+                  <button onclick="saveStudent(this)" class="bg-jade text-white text-xs px-2.5 py-1 rounded font-semibold hover:bg-jade-dark transition shadow-sm">រក្សាទុក</button>
+                  <button onclick="cancelEdit(this)" class="ml-1.5 text-muted hover:text-ink text-xs px-2 py-1">បោះបង់</button>
+                </td>
+              </tr>`;
+            }
+
+            return `
+            <tr data-id="${s.id || ""}" data-temp="${s._temp || ""}" data-editing="false" onclick="toggleStudentSelection(event)" class="cursor-pointer select-none transition-colors duration-150 ${selected ? "bg-jade/10 font-medium" : "hover:bg-[#fbf9f5]"}">
+              <td class="px-3 py-3 text-center">
+                <input type="checkbox" class="f-select accent-[#0f6b5c] w-4 h-4 cursor-pointer" value="${s.id || ""}" ${selected ? "checked" : ""} onchange="setStudentSelected(this)" aria-label="ជ្រើស ${esc(s.student_name)}">
+              </td>
+              <td class="px-3 py-3 text-muted text-xs text-center font-mono">${i + 1}</td>
+              <td class="px-3 py-3 text-ink font-semibold">${esc(s.student_name)}</td>
+              <td class="px-3 py-3 text-jade font-mono text-xs font-medium">${esc(s.phone)}</td>
+              <td class="px-3 py-3 text-muted">${esc(className(s.class_id))}</td>
+              <td class="px-3 py-3 text-muted text-xs">${esc(s.note || "-")}</td>
+              <td class="px-3 py-3 text-center whitespace-nowrap">
+                <button onclick="editStudent(this)" class="text-jade hover:text-jade-dark text-xs font-semibold px-2 py-1 rounded hover:bg-jade/10 transition">កែ</button>
+                <button onclick="removeRow(this)" class="ml-1 text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 rounded hover:bg-red-50 transition">លុប</button>
+              </td>
+            </tr>`;
+          })
+          .join("");
+        updateSelectionControls();
+      }
+
+      function esc(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function addRow() {
+        document.getElementById("searchStudent").value = "";
+        const classId =
+          document.getElementById("filterClass").value ||
+          (classes[0] && classes[0].id) ||
+          "";
+        rowIdCounter++;
+        students.push({
+          id: null,
+          _temp: "t" + rowIdCounter,
+          student_name: "",
+          phone: "",
+          class_id: classId ? Number(classId) : null,
+          note: "",
+          _editing: true,
+        });
+        renderTable();
+        const inputs = document.querySelectorAll(".f-name");
+        if (inputs.length) inputs[inputs.length - 1].focus();
+      }
+
+      function editStudent(btn) {
+        const student = studentForRow(btn);
+        if (student) student._editing = true;
+        renderTable();
+        const studentId = student?.id;
+        const row = document.querySelector(
+          `#studentBody tr[data-id="${studentId}"]`,
+        );
+        row?.querySelector(".f-name")?.focus();
+      }
+
+      function studentForRow(element) {
+        const tr = element.closest("tr");
+        return students.find((student) =>
+          tr.dataset.id
+            ? String(student.id) === tr.dataset.id
+            : student._temp === tr.dataset.temp,
+        );
+      }
+
+      async function saveStudent(btn) {
+        const tr = btn.closest("tr");
+        const student = studentForRow(btn);
+        const studentName = tr.querySelector(".f-name")?.value.trim();
+        const phone = tr.querySelector(".f-phone")?.value.trim();
+        const classId = tr.querySelector(".f-class")?.value;
+        const note = tr.querySelector(".f-note")?.value.trim();
+        if (!studentName || !phone || !classId) {
+          toast("សូមបញ្ចូលឈ្មោះ ព័ត៌មាន Telegram និងថ្នាក់", "error");
+          return;
+        }
+        const form = new FormData();
+        form.append("student_name", studentName);
+        form.append("phone", phone);
+        form.append("class_id", classId);
+        form.append("note", note);
+        if (!student.id && slotScopeLocked && initialSlotId)
+          form.append("slot_id", initialSlotId);
+        btn.disabled = true;
+        try {
+          const url = student.id
+            ? `/api/manage/${USERNAME}/students/${student.id}`
+            : `/api/manage/${USERNAME}/students`;
+          const result = await api(url, {
+            method: student.id ? "PUT" : "POST",
+            body: form,
+          });
+          toast(result.message, "success");
+          await loadStudents();
+        } catch (error) {
+          toast(error.message, "error");
+          btn.disabled = false;
+        }
+      }
+
+      function cancelEdit(btn) {
+        const student = studentForRow(btn);
+        if (!student.id) {
+          students = students.filter((item) => item._temp !== student._temp);
+        } else {
+          student._editing = false;
+        }
+        renderTable();
+      }
+
+      // លុបសិស្សដោយប្រើ Custom Pop-up Modal ថ្មី
+      async function removeRow(btn) {
+        const student = studentForRow(btn);
+        const studentDisplayName = student.student_name ? `«${student.student_name}»` : "នេះ";
+
+        const confirmed = await showConfirmDialog({
+          title: "បញ្ជាក់ការលុបសិស្ស",
+          message: `តើអ្នកពិតជាចង់លុបសិស្ស ${studentDisplayName} មែនទេ? ទិន្នន័យដែលលុបហើយ មិនអាចយកមកវិញបានឡើយ។`,
+          confirmText: "លុបចេញ",
+          cancelText: "បោះបង់",
+        });
+
+        if (!confirmed) return;
+
+        if (student.id) {
+          try {
+            const result = await api(
+              `/api/manage/${USERNAME}/students/${student.id}`,
+              { method: "DELETE" },
+            );
+            selectedStudentIds.delete(Number(student.id));
+            toast(result.message, "success");
+          } catch (error) {
+            toast(error.message, "error");
+            return;
+          }
+        }
+        students = students.filter((item) => item !== student);
+        renderTable();
+      }
+
+      function toggleStudentSelection(event) {
+        if (event.target.closest("button, select, textarea, a, input")) return;
+        const tr = event.currentTarget;
+        if (tr.dataset.editing === "true") return;
+
+        const id = Number(tr.dataset.id);
+        if (!id) return;
+
+        const checkbox = tr.querySelector(".f-select");
+        if (selectedStudentIds.has(id)) {
+          selectedStudentIds.delete(id);
+          if (checkbox) checkbox.checked = false;
+          tr.classList.remove("bg-jade/10", "font-medium");
+        } else {
+          selectedStudentIds.add(id);
+          if (checkbox) checkbox.checked = true;
+          tr.classList.add("bg-jade/10", "font-medium");
+        }
+        updateSelectionControls();
+      }
+
+      function setStudentSelected(checkbox) {
+        const id = Number(checkbox.value);
+        if (!id) return;
+        const tr = checkbox.closest("tr");
+        if (checkbox.checked) {
+          selectedStudentIds.add(id);
+          tr.classList.add("bg-jade/10", "font-medium");
+        } else {
+          selectedStudentIds.delete(id);
+          tr.classList.remove("bg-jade/10", "font-medium");
+        }
+        updateSelectionControls();
+      }
+
+      function toggleVisibleSelection(checkbox) {
+        document.querySelectorAll('#studentBody tr[data-editing="false"]').forEach((row) => {
+          const id = Number(row.dataset.id);
+          if (!id) return;
+          const cb = row.querySelector(".f-select");
+          if (checkbox.checked) {
+            selectedStudentIds.add(id);
+            if (cb) cb.checked = true;
+            row.classList.add("bg-jade/10", "font-medium");
+          } else {
+            selectedStudentIds.delete(id);
+            if (cb) cb.checked = false;
+            row.classList.remove("bg-jade/10", "font-medium");
+          }
+        });
+        updateSelectionControls();
+      }
+
+      function updateSelectionControls() {
+        const count = selectedStudentIds.size;
+        document.getElementById("selectedCount").textContent = count;
+        document.getElementById("btnSendSelected").disabled = count === 0;
+        const visible = [
+          ...document.querySelectorAll('#studentBody tr[data-editing="false"]'),
+        ];
+        const allSelected =
+          visible.length > 0 &&
+          visible.every((row) =>
+            selectedStudentIds.has(Number(row.dataset.id)),
+          );
+        const selectAll = document.getElementById("selectVisibleStudents");
+        selectAll.checked = allSelected;
+        selectAll.indeterminate =
+          !allSelected &&
+          visible.some((row) => selectedStudentIds.has(Number(row.dataset.id)));
+      }
+
+      document
+        .getElementById("filterClass")
+        .addEventListener("change", async () => {
+          selectedStudentIds.clear();
+          closeMessageComposer();
+          await loadStudents();
+        });
+      document
+        .getElementById("searchStudent")
+        .addEventListener("input", renderTable);
+      document
+        .getElementById("messageTemplate")
+        .addEventListener("change", (event) => {
+          const template = messageTemplates.find(
+            (item) => String(item.id) === event.target.value,
+          );
+          if (template)
+            document.getElementById("messageContent").value = template.content;
+        });
+
+      // Init
+      (async () => {
+        await loadClasses();
+        await loadStudents();
+        await loadMessageTemplates();
+        await loadTgStatus();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>404 — Page Not Found</title>
+
+  <!-- Fonts (Using Inter for a clean, modern look) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              red: '#E54C3C',      // Main background red
+              darkred: '#C0392B',  // Shadow red
+            },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="min-h-full bg-brand-red font-sans text-black antialiased flex flex-col items-center justify-center p-4 selection:bg-brand-darkred selection:text-white">
+
+  <!-- ================= BROWSER WINDOW MOCKUP ================= -->
+  <div class="relative w-full max-w-2xl">
+    
+    <!-- Hard Drop Shadow (Offset to the bottom right) -->
+    <div class="absolute inset-0 bg-brand-darkred rounded-2xl translate-x-4 translate-y-4 sm:translate-x-6 sm:translate-y-6"></div>
+
+    <!-- Main White Window -->
+    <div class="relative bg-white rounded-2xl overflow-hidden shadow-xl z-10">
+      
+      <!-- Window Header (Browser Chrome) -->
+      <div class="flex items-center px-4 py-4 border-b-2 border-brand-red">
+        <!-- Window Controls (Three Dots) -->
+        <div class="flex space-x-1.5 sm:space-x-2">
+          <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-brand-red"></div>
+          <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-brand-red"></div>
+          <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-brand-red"></div>
+        </div>
+        
+        <!-- Fake Search Bar -->
+        <div class="flex-1 h-3 sm:h-4 bg-brand-red mx-3 sm:mx-4 rounded-sm"></div>
+        
+        <!-- Fake Menu Box -->
+        <div class="w-6 sm:w-8 h-3 sm:h-4 bg-brand-red rounded-sm"></div>
+      </div>
+      
+      <!-- Window Content -->
+      <div class="py-12 sm:py-16 px-6 text-center flex flex-col items-center justify-center">
+        <!-- Large 404 Text -->
+        <h1 class="text-8xl sm:text-9xl md:text-[10rem] font-black tracking-tighter leading-none mb-4 sm:mb-6">
+          404
+        </h1>
+        
+        <!-- Subtitle -->
+        <p class="text-base sm:text-lg md:text-xl font-medium text-black tracking-wide">
+          Page Not Found .That Page Doesn't Exist!
+        </p>
+      </div>
+      
+    </div>
+  </div>
+
+
+
+</body>
+</html>

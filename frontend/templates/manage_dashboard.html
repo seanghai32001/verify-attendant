@@ -1,0 +1,1818 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>ផ្ទាំងគ្រប់គ្រង - {{ inst.institution_name }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#211D19",
+              muted: "#7B7268",
+              line: "#E7E1D7",
+              surface: "#FFFFFF",
+              canvas: "#F6F4F0",
+
+              maroon: {
+                DEFAULT: "#7A1F1F",
+                dark: "#4B0D12",
+                light: "#9B4040",
+                soft: "#F7EAEA",
+              },
+
+              gold: {
+                DEFAULT: "#C9A227",
+                light: "#F0E2B6",
+                soft: "#FBF3DF",
+                deep: "#9A7A14",
+              },
+
+              jade: {
+                DEFAULT: "#0F6B5C",
+                dark: "#0A4F44",
+                light: "#DCEFEB",
+                soft: "#EAF5F2",
+              },
+            },
+
+            fontFamily: {
+              khmer: ['"Kantumruy Pro"', "sans-serif"],
+              moul: ['"Moul"', "serif"],
+            },
+
+            boxShadow: {
+              card: "0 1px 2px rgba(33,29,25,.04), 0 10px 30px -18px rgba(33,29,25,.35)",
+              pop: "0 30px 70px -24px rgba(33,29,25,.45)",
+              header: "0 10px 30px -18px rgba(75,13,18,.8)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root {
+        --header-h: 64px;
+        --maroon: #7a1f1f;
+        --maroon-dark: #4b0d12;
+        --gold: #c9a227;
+        --jade: #0f6b5c;
+        --ink: #211d19;
+        --muted: #7b7268;
+        --line: #e7e1d7;
+        --surface: #ffffff;
+        --canvas: #f6f4f0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+        color: var(--ink);
+        min-height: 100vh;
+        background-color: var(--canvas);
+        background-image:
+          radial-gradient(
+            circle at 8% -10%,
+            rgba(201, 162, 39, 0.13),
+            transparent 42%
+          ),
+          radial-gradient(
+            circle at 102% 108%,
+            rgba(15, 107, 92, 0.09),
+            transparent 45%
+          );
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      ::selection {
+        background: var(--gold);
+        color: var(--maroon-dark);
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #d9d2c6;
+        border-radius: 999px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(16px);
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .animate-fade-up {
+        animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(33, 29, 25, 0.03);
+      }
+
+      .field {
+        width: 100%;
+        font-size: 12px;
+        color: var(--ink);
+        background: #fbfaf8;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 10px;
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease;
+        outline: none;
+      }
+
+      .field:focus {
+        background: #fff;
+        border-color: rgba(15, 107, 92, 0.5);
+        box-shadow: 0 0 0 3px rgba(15, 107, 92, 0.1);
+      }
+
+      .field-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #4b453e;
+        margin-bottom: 4px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 8px 14px;
+        transition: all 0.16s ease;
+        cursor: pointer;
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+
+      .btn:active {
+        transform: scale(0.975);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #c9a227, #b08d18);
+        color: #3d2c05;
+        box-shadow: 0 6px 15px -10px rgba(201, 162, 39, 0.95);
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #d9b641, #bd981f);
+      }
+
+      .btn-jade {
+        background: linear-gradient(135deg, #0f6b5c, #0a4f44);
+        color: #fff;
+        box-shadow: 0 6px 15px -10px rgba(15, 107, 92, 0.95);
+      }
+
+      .btn-jade:hover {
+        background: linear-gradient(135deg, #147967, #0a4f44);
+      }
+
+      .btn-ghost {
+        background: #fff;
+        border-color: var(--line);
+        color: #4b453e;
+      }
+
+      .btn-ghost:hover {
+        background: #faf8f5;
+        border-color: #d9d2c6;
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #c0392b, #96261a);
+        color: #fff;
+      }
+
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #ece7de;
+        border-top-color: var(--jade);
+        border-right-color: var(--gold);
+        animation: spin 0.75s linear infinite;
+      }
+
+      /* Sidebar Subject Nav Item */
+      .subject-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.18s ease;
+      }
+
+      .subject-nav-item:hover {
+        background: #f4f8f7;
+        border-color: #dbeefb;
+        transform: translateX(2px);
+      }
+
+      .subject-nav-item.is-active {
+        background: linear-gradient(135deg, #0f6b5c, #09473d) !important;
+        border-color: rgba(201, 162, 39, 0.5) !important;
+        box-shadow: 0 8px 20px -10px rgba(15, 107, 92, 0.95);
+        color: #ffffff !important;
+        transform: none;
+      }
+
+      .subject-nav-item.is-active .subject-icon-box {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+      }
+
+      .subject-nav-item.is-active .subject-badge {
+        background: rgba(201, 162, 39, 0.3);
+        color: #fef08a;
+        border-color: rgba(201, 162, 39, 0.5);
+      }
+
+      .subject-nav-item.is-active .subject-text {
+        color: #ffffff;
+      }
+
+      .subject-icon-box {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        border-radius: 8px;
+        background: #f1eee8;
+        display: grid;
+        place-items: center;
+        color: var(--jade);
+        transition: all 0.18s ease;
+      }
+
+      /* ====================================================
+         CLASS CARD (Logo Banner + Centered Caption)
+      ===================================================== */
+      .class-card {
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+        box-shadow: 0 2px 8px -2px rgba(33, 29, 25, 0.05);
+        cursor: pointer;
+      }
+
+      .class-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px -12px rgba(33, 29, 25, 0.22);
+        border-color: #0f6b5c40;
+      }
+
+      .class-logo-banner {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      .banner-watermark-icon {
+        position: absolute;
+        right: -10px;
+        bottom: -15px;
+        width: 90px;
+        height: 90px;
+        opacity: 0.12;
+        color: #fff;
+        pointer-events: none;
+      }
+
+      .class-logo-text {
+        font-family: "Moul", serif;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #ffffff;
+        text-align: center;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+        word-break: break-word;
+        margin: auto 0;
+        z-index: 2;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .modal-backdrop {
+        animation: fadeIn 0.2s ease both;
+      }
+
+      .modal-panel {
+        animation: scaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      @media (max-width: 1023px) {
+        .dashboard-grid {
+          height: auto !important;
+        }
+        .sidebar-panel {
+          max-height: 380px;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen flex flex-col">
+    <!-- HEADER -->
+    <header
+      class="sticky top-0 z-40 text-white shadow-header"
+      style="
+        background: linear-gradient(
+          120deg,
+          #4b0d12 0%,
+          #7a1f1f 48%,
+          #4b0d12 100%
+        );
+      "
+    >
+      <div
+        class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent"
+      ></div>
+
+      <div
+        class="relative mx-auto w-full max-w-[1750px] px-3.5 sm:px-6 h-14 flex items-center justify-between gap-4"
+      >
+        <!-- Brand -->
+        <div class="flex items-center gap-3 min-w-0">
+          {% if inst.profile_image_url %}
+          <div
+            class="shrink-0 rounded-full p-[2px] bg-gradient-to-br from-gold-light via-gold to-gold-deep shadow-lg"
+          >
+            <img
+              src="{{ inst.profile_image_url }}"
+              alt="Logo"
+              class="w-9 h-9 rounded-full object-cover border border-white/20 bg-white"
+            />
+          </div>
+          {% else %}
+          <div
+            class="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-jade to-jade-dark text-white grid place-items-center font-bold text-sm border-2 border-gold/80 shadow-lg"
+          >
+            {{ inst.institution_name[0] }}
+          </div>
+          {% endif %}
+
+          <div class="min-w-0">
+            <p
+              class="text-[8px] sm:text-[9px] uppercase tracking-[0.22em] text-gold-light/75 font-semibold leading-none"
+            >
+              ប្រព័ន្ធគ្រប់គ្រងសាលារៀន
+            </p>
+            <h1
+              class="font-moul text-[12px] sm:text-sm tracking-wide text-white truncate max-w-[180px] sm:max-w-[480px] mt-0.5"
+            >
+              {{ inst.institution_name }}
+            </h1>
+          </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center gap-2 shrink-0">
+          <a
+            href="/manage/{{ inst.inst_username }}/students"
+            class="inline-flex items-center gap-1 bg-white/10 hover:bg-white/20 border border-white/25 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition"
+          >
+            សិស្ស
+          </a>
+          <a
+            href="/manage/{{ inst.inst_username }}/telegram"
+            class="inline-flex items-center gap-1 bg-white/10 hover:bg-white/20 border border-white/25 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition"
+          >
+            Telegram
+          </a>
+          <a
+            href="/manage/{{ inst.inst_username }}/logout"
+            class="group inline-flex items-center gap-1.5 bg-gradient-to-r from-gold to-gold-deep hover:from-gold-light hover:to-gold text-maroon-dark font-bold px-3 py-1.5 rounded-lg text-[11px] shadow-md border border-gold-light/40 transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+          >
+            ចាកចេញ
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <main class="flex-1 w-full max-w-[1750px] mx-auto p-2.5 sm:p-3 lg:p-4">
+      <div
+        class="dashboard-grid grid grid-cols-1 lg:grid-cols-12 gap-3 lg:h-[calc(100vh-96px)]"
+      >
+        <!-- =========================
+             SIDEBAR: SUBJECTS
+        ========================== -->
+        <aside
+          class="sidebar-panel lg:col-span-3 xl:col-span-3 panel flex flex-col overflow-hidden animate-fade-up"
+        >
+          <div class="px-3 pt-3 pb-2 border-b border-line">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <p
+                  class="text-[9px] uppercase tracking-[0.18em] font-bold text-muted"
+                >
+                  មុខវិជ្ជាសិក្សា
+                </p>
+                <p class="text-[10px] text-muted/80 mt-0.5">
+                  ជ្រើសមុខវិជ្ជាដើម្បីបង្ហាញថ្នាក់
+                </p>
+              </div>
+
+              <!-- Create Subject Button -->
+              <button
+                onclick="openCreateSubject()"
+                class="w-7 h-7 rounded-full grid place-items-center text-white text-[11px] shadow-md border border-gold/70 transition hover:scale-105 active:scale-90"
+                style="background: linear-gradient(135deg, #0f6b5c, #0a4f44)"
+                title="បង្កើតមុខវិជ្ជាថ្មី"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.2"
+                    d="M12 5v14M5 12h14"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Subject Search -->
+            <div class="relative mt-2">
+              <svg
+                class="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+              <input
+                type="text"
+                id="search-subject-input"
+                oninput="handleSubjectSearch()"
+                placeholder="ស្វែងរកមុខវិជ្ជា..."
+                class="field pl-8 text-[11px] py-1.5"
+              />
+            </div>
+          </div>
+
+          <!-- Subject Navigation List (Active State Highlight) -->
+          <div
+            id="subject-nav-list"
+            class="flex-1 overflow-y-auto p-2 space-y-1"
+          >
+            <div class="flex justify-center py-8">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- Sidebar Footer -->
+          <div
+            class="px-3 py-2 border-t border-line bg-[#fbfaf8] flex items-center justify-between text-[10px]"
+          >
+            <span class="text-muted">សរុបមុខវិជ្ជា</span>
+            <span id="subject-total-count" class="font-bold text-ink">0</span>
+          </div>
+        </aside>
+
+        <!-- =========================
+             MAIN CONTENT: CLASSES
+        ========================== -->
+        <section
+          class="main-panel lg:col-span-9 panel flex flex-col overflow-hidden animate-fade-up"
+          style="animation-delay: 0.05s"
+        >
+          <!-- ============ ស្ថិតិខាងលើ (Stats Header) ============ -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 border-b border-line bg-gradient-to-b from-white to-[#fcfbf9]"
+          >
+            <!-- Stat 1: មុខវិជ្ជា -->
+            <div
+              class="flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-2.5 shadow-sm"
+            >
+              <span
+                class="w-9 h-9 shrink-0 rounded-lg grid place-items-center bg-gold-soft border border-gold/30 text-gold-deep"
+              >
+                <svg
+                  class="w-4.5 h-4.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.9"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  ></path>
+                </svg>
+              </span>
+              <div class="min-w-0">
+                <p
+                  id="stat-label-1"
+                  class="text-[9.5px] font-semibold uppercase tracking-wider text-muted truncate"
+                >
+                  ចំនួនមុខវិជ្ជា
+                </p>
+                <p
+                  id="stat-val-1"
+                  class="font-moul text-sm sm:text-base text-ink leading-tight truncate mt-0.5"
+                >
+                  --
+                </p>
+              </div>
+            </div>
+
+            <!-- Stat 2: ចំនួនថ្នាក់ -->
+            <div
+              class="flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-2.5 shadow-sm"
+            >
+              <span
+                class="w-9 h-9 shrink-0 rounded-lg grid place-items-center bg-maroon-soft border border-maroon/20 text-maroon"
+              >
+                <svg
+                  class="w-4.5 h-4.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.9"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  ></path>
+                </svg>
+              </span>
+              <div class="min-w-0">
+                <p
+                  id="stat-label-2"
+                  class="text-[9.5px] font-semibold uppercase tracking-wider text-muted truncate"
+                >
+                  ចំនួនថ្នាក់
+                </p>
+                <p
+                  id="stat-val-2"
+                  class="font-moul text-sm sm:text-base text-ink leading-tight truncate mt-0.5"
+                >
+                  --
+                </p>
+              </div>
+            </div>
+
+            <!-- Stat 3: ចំនួនសិស្ស -->
+            <div
+              class="flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-2.5 shadow-sm"
+            >
+              <span
+                class="w-9 h-9 shrink-0 rounded-lg grid place-items-center bg-jade-soft border border-jade/20 text-jade"
+              >
+                <svg
+                  class="w-4.5 h-4.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.9"
+                    d="M17 20a4 4 0 00-8 0M13 11a4 4 0 100-8 4 4 0 000 8zm5 9a4 4 0 00-3-3.87M17 7a4 4 0 010 6"
+                  ></path>
+                </svg>
+              </span>
+              <div class="min-w-0">
+                <p
+                  id="stat-label-3"
+                  class="text-[9.5px] font-semibold uppercase tracking-wider text-muted truncate"
+                >
+                  ចំនួនសិស្ស
+                </p>
+                <p
+                  id="stat-val-3"
+                  class="font-moul text-sm sm:text-base text-ink leading-tight truncate mt-0.5"
+                >
+                  --
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- View Action Bar -->
+          <div
+            class="px-4 py-2.5 border-b border-line bg-white flex flex-wrap items-center justify-between gap-3"
+          >
+            <div class="min-w-0">
+              <h2 id="view-title" class="font-moul text-sm text-ink truncate">
+                បន្ទប់ថ្នាក់
+              </h2>
+              <p id="view-subtitle" class="text-[10px] text-muted mt-0.5">
+                កំពុងទាញទិន្នន័យ...
+              </p>
+            </div>
+
+            <!-- Fix: សញ្ញាបូកតែមួយគត់ (Icon) មិនជាន់គ្នា -->
+            <button
+              onclick="openCreateClassModal()"
+              class="btn btn-primary py-1.5 px-3 text-[11px]"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.2"
+                  d="M12 5v14M5 12h14"
+                ></path>
+              </svg>
+              បង្កើតថ្នាក់ថ្មី
+            </button>
+          </div>
+
+          <!-- Classes Canvas -->
+          <div
+            id="classes-canvas"
+            class="flex-1 overflow-y-auto p-3.5 sm:p-4 bg-gradient-to-b from-[#fdfcfa] to-[#f8f6f2]"
+          >
+            <div class="flex justify-center py-16">
+              <div class="spinner"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- TOAST CONTAINER -->
+    <div
+      id="toast-container"
+      class="fixed top-16 right-3 sm:right-4 z-[70] flex flex-col gap-2 pointer-events-none w-[calc(100%-1.5rem)] sm:w-auto sm:max-w-xs"
+    ></div>
+
+    <!-- ====================================================
+         MODALS
+    ===================================================== -->
+
+    <!-- 1. MODAL: CREATE SUBJECT -->
+    <div
+      id="modal-create-subject"
+      data-modal
+      class="hidden modal-backdrop fixed inset-0 z-[55] flex items-center justify-center p-4"
+      style="background: rgba(33, 29, 25, 0.45); backdrop-filter: blur(4px)"
+    >
+      <div
+        class="modal-panel w-full max-w-sm bg-white rounded-xl shadow-pop border border-line overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 text-white"
+          style="
+            background: linear-gradient(120deg, #0a4f44, #0f6b5c 65%, #14806d);
+          "
+        >
+          <h3 class="font-moul text-[13px]">បង្កើតមុខវិជ្ជាថ្មី</h3>
+        </div>
+        <form id="form-create-subject" class="p-4 space-y-3">
+          <div>
+            <label class="field-label" for="subject-name"
+              >ឈ្មោះមុខវិជ្ជា <span class="text-red-500">*</span></label
+            >
+            <input
+              id="subject-name"
+              name="name"
+              type="text"
+              required
+              maxlength="100"
+              class="field"
+              placeholder="ឧ. គណិតវិទ្យា, អង់គ្លេស..."
+            />
+          </div>
+          <div class="flex gap-2 pt-2 border-t border-line">
+            <button
+              type="button"
+              onclick="closeModal('modal-create-subject')"
+              class="btn btn-ghost flex-1 py-1.5"
+            >
+              បោះបង់
+            </button>
+            <button type="submit" class="btn btn-jade flex-1 py-1.5">
+              រក្សាទុក
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 2. MODAL: CREATE CLASS (Asian 12-Hour Time Format) -->
+    <div
+      id="modal-create-class"
+      data-modal
+      class="hidden modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background: rgba(33, 29, 25, 0.45); backdrop-filter: blur(4px)"
+    >
+      <div
+        class="modal-panel w-full max-w-md bg-white rounded-xl shadow-pop border border-line overflow-hidden"
+      >
+        <div
+          class="relative px-4 py-3 text-white"
+          style="
+            background: linear-gradient(120deg, #4b0d12, #7a1f1f 60%, #9b4040);
+          "
+        >
+          <h3 class="font-moul text-[13px]">បង្កើតថ្នាក់រៀនថ្មី</h3>
+        </div>
+        <form id="form-create-class" class="p-4 space-y-3">
+          <div>
+            <label class="field-label" for="class-subject-id"
+              >មុខវិជ្ជា <span class="text-red-500">*</span></label
+            >
+            <select
+              id="class-subject-id"
+              name="subject_id"
+              required
+              class="field"
+            >
+              <option value="">-- ជ្រើសរើសមុខវិជ្ជា --</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label"
+              >ឈ្មោះថ្នាក់រៀន (Logo) <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              name="class_name"
+              required
+              maxlength="100"
+              placeholder="ឧ. ថ្នាក់កុំព្យូទ័រ A, ថ្នាក់ភាសាអង់គ្លេស..."
+              class="field"
+            />
+            <p class="text-[10px] text-muted mt-0.5">
+              ឈ្មោះថ្នាក់នេះនឹងត្រូវបង្ហាញជា Logo Banner
+            </p>
+          </div>
+
+          <!-- Asian Time Selector (ម៉ោងចាប់ផ្ដើម) -->
+          <div class="rounded-lg p-2.5 bg-canvas border border-line">
+            <label class="field-label text-jade font-bold mb-1.5"
+              >ម៉ោងចាប់ផ្ដើម (ពេលអាស៊ី)</label
+            >
+            <div class="grid grid-cols-3 gap-1.5">
+              <select id="create-start-hour" class="field py-1 text-[11px]">
+                <option value="6">ម៉ោង 6</option>
+                <option value="7" selected>ម៉ោង 7</option>
+                <option value="8">ម៉ោង 8</option>
+                <option value="9">ម៉ោង 9</option>
+                <option value="10">ម៉ោង 10</option>
+                <option value="11">ម៉ោង 11</option>
+                <option value="12">ម៉ោង 12</option>
+                <option value="1">ម៉ោង 1</option>
+                <option value="2">ម៉ោង 2</option>
+                <option value="3">ម៉ោង 3</option>
+                <option value="4">ម៉ោង 4</option>
+                <option value="5">ម៉ោង 5</option>
+              </select>
+              <select id="create-start-min" class="field py-1 text-[11px]">
+                <option value="00" selected>:00 នាទី</option>
+                <option value="15">:15 នាទី</option>
+                <option value="30">:30 នាទី</option>
+                <option value="45">:45 នាទី</option>
+              </select>
+              <select
+                id="create-start-period"
+                class="field py-1 text-[11px] font-semibold text-jade"
+              >
+                <option value="ព្រឹក" selected>ព្រឹក</option>
+                <option value="រសៀល">រសៀល</option>
+                <option value="ល្ងាច">ល្ងាច</option>
+                <option value="យប់">យប់</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Asian Time Selector (ម៉ោងបញ្ចប់) -->
+          <div class="rounded-lg p-2.5 bg-canvas border border-line">
+            <label class="field-label text-jade font-bold mb-1.5"
+              >ម៉ោងបញ្ចប់ (ពេលអាស៊ី)</label
+            >
+            <div class="grid grid-cols-3 gap-1.5">
+              <select id="create-end-hour" class="field py-1 text-[11px]">
+                <option value="6">ម៉ោង 6</option>
+                <option value="7">ម៉ោង 7</option>
+                <option value="8">ម៉ោង 8</option>
+                <option value="9" selected>ម៉ោង 9</option>
+                <option value="10">ម៉ោង 10</option>
+                <option value="11">ម៉ោង 11</option>
+                <option value="12">ម៉ោង 12</option>
+                <option value="1">ម៉ោង 1</option>
+                <option value="2">ម៉ោង 2</option>
+                <option value="3">ម៉ោង 3</option>
+                <option value="4">ម៉ោង 4</option>
+                <option value="5">ម៉ោង 5</option>
+              </select>
+              <select id="create-end-min" class="field py-1 text-[11px]">
+                <option value="00" selected>:00 នាទី</option>
+                <option value="15">:15 នាទី</option>
+                <option value="30">:30 នាទី</option>
+                <option value="45">:45 នាទី</option>
+              </select>
+              <select
+                id="create-end-period"
+                class="field py-1 text-[11px] font-semibold text-jade"
+              >
+                <option value="ព្រឹក" selected>ព្រឹក</option>
+                <option value="រសៀល">រសៀល</option>
+                <option value="ល្ងាច">ល្ងាច</option>
+                <option value="យប់">យប់</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-2 border-t border-line">
+            <button
+              type="button"
+              onclick="closeModal('modal-create-class')"
+              class="btn btn-ghost flex-1 py-1.5"
+            >
+              បោះបង់
+            </button>
+            <button type="submit" class="btn btn-primary flex-1 py-1.5">
+              បង្កើតថ្នាក់
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. MODAL: EDIT CLASS TIME (Asian 12-Hour Format) -->
+    <div
+      id="modal-edit-time"
+      data-modal
+      class="hidden modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background: rgba(10, 79, 68, 0.4); backdrop-filter: blur(4px)"
+    >
+      <div
+        class="modal-panel w-full max-w-sm bg-white rounded-xl shadow-pop border border-line overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 text-white"
+          style="
+            background: linear-gradient(120deg, #0a4f44, #0f6b5c 65%, #14806d);
+          "
+        >
+          <h3 class="font-moul text-[13px]">កែប្រែម៉ោងសិក្សា</h3>
+        </div>
+        <form id="form-edit-time" class="p-4 space-y-3">
+          <div class="rounded-lg bg-jade-soft border border-jade/15 px-3 py-2">
+            <p class="text-[9.5px] text-muted leading-none">
+              ថ្នាក់ដែលកំពុងកែប្រែ៖
+            </p>
+            <span
+              id="modal-edit-class-name"
+              class="font-semibold text-jade text-[11.5px] truncate block mt-1"
+            ></span>
+          </div>
+
+          <!-- Edit Start Time -->
+          <div class="rounded-lg p-2.5 bg-canvas border border-line">
+            <label class="field-label text-jade font-bold mb-1.5"
+              >ម៉ោងចាប់ផ្ដើម</label
+            >
+            <div class="grid grid-cols-3 gap-1.5">
+              <select id="edit-start-hour" class="field py-1 text-[11px]">
+                <option value="6">ម៉ោង 6</option>
+                <option value="7">ម៉ោង 7</option>
+                <option value="8">ម៉ោង 8</option>
+                <option value="9">ម៉ោង 9</option>
+                <option value="10">ម៉ោង 10</option>
+                <option value="11">ម៉ោង 11</option>
+                <option value="12">ម៉ោង 12</option>
+                <option value="1">ម៉ោង 1</option>
+                <option value="2">ម៉ោង 2</option>
+                <option value="3">ម៉ោង 3</option>
+                <option value="4">ម៉ោង 4</option>
+                <option value="5">ម៉ោង 5</option>
+              </select>
+              <select id="edit-start-min" class="field py-1 text-[11px]">
+                <option value="00">:00</option>
+                <option value="15">:15</option>
+                <option value="30">:30</option>
+                <option value="45">:45</option>
+              </select>
+              <select
+                id="edit-start-period"
+                class="field py-1 text-[11px] font-semibold text-jade"
+              >
+                <option value="ព្រឹក">ព្រឹក</option>
+                <option value="រសៀល">រសៀល</option>
+                <option value="ល្ងាច">ល្ងាច</option>
+                <option value="យប់">យប់</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Edit End Time -->
+          <div class="rounded-lg p-2.5 bg-canvas border border-line">
+            <label class="field-label text-jade font-bold mb-1.5"
+              >ម៉ោងបញ្ចប់</label
+            >
+            <div class="grid grid-cols-3 gap-1.5">
+              <select id="edit-end-hour" class="field py-1 text-[11px]">
+                <option value="6">ម៉ោង 6</option>
+                <option value="7">ម៉ោង 7</option>
+                <option value="8">ម៉ោង 8</option>
+                <option value="9">ម៉ោង 9</option>
+                <option value="10">ម៉ោង 10</option>
+                <option value="11">ម៉ោង 11</option>
+                <option value="12">ម៉ោង 12</option>
+                <option value="1">ម៉ោង 1</option>
+                <option value="2">ម៉ោង 2</option>
+                <option value="3">ម៉ោង 3</option>
+                <option value="4">ម៉ោង 4</option>
+                <option value="5">ម៉ោង 5</option>
+              </select>
+              <select id="edit-end-min" class="field py-1 text-[11px]">
+                <option value="00">:00</option>
+                <option value="15">:15</option>
+                <option value="30">:30</option>
+                <option value="45">:45</option>
+              </select>
+              <select
+                id="edit-end-period"
+                class="field py-1 text-[11px] font-semibold text-jade"
+              >
+                <option value="ព្រឹក">ព្រឹក</option>
+                <option value="រសៀល">រសៀល</option>
+                <option value="ល្ងាច">ល្ងាច</option>
+                <option value="យប់">យប់</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-2 border-t border-line">
+            <button
+              type="button"
+              onclick="closeModal('modal-edit-time')"
+              class="btn btn-ghost flex-1 py-1.5"
+            >
+              បោះបង់
+            </button>
+            <button type="submit" class="btn btn-jade flex-1 py-1.5">
+              រក្សាទុក
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. MODAL: CONFIRM -->
+    <div
+      id="modal-confirm"
+      data-modal
+      class="hidden modal-backdrop fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style="background: rgba(33, 29, 25, 0.45); backdrop-filter: blur(4px)"
+    >
+      <div
+        class="modal-panel w-full max-w-xs bg-white rounded-xl shadow-pop border border-line p-5 text-center"
+      >
+        <h3
+          id="confirm-title"
+          class="font-moul text-[12.5px] text-ink mt-1"
+        ></h3>
+        <p
+          id="confirm-message"
+          class="text-[11px] text-muted mt-2 leading-relaxed"
+        ></p>
+        <div id="confirm-password-wrap" class="hidden mt-4 text-left">
+          <label for="confirm-password" class="field-label"
+            >ពាក្យសម្ងាត់ស្ថាប័ន</label
+          >
+          <input
+            id="confirm-password"
+            type="password"
+            autocomplete="current-password"
+            class="field w-full"
+          />
+        </div>
+        <div class="flex gap-2 mt-5">
+          <button
+            type="button"
+            onclick="resolveConfirm(false)"
+            class="btn btn-ghost flex-1 py-1.5"
+          >
+            បោះបង់
+          </button>
+          <button
+            type="button"
+            id="confirm-ok"
+            onclick="resolveConfirm(true)"
+            class="btn btn-danger flex-1 py-1.5"
+          >
+            យល់ព្រមលុប
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         JAVASCRIPT LOGIC
+    ========================== -->
+    <script>
+      const USERNAME = "{{ inst.inst_username }}";
+
+      let classes = [];
+      let subjects = [];
+      let students = [];
+      let subjectsById = new Map();
+      let classCountsBySubject = new Map();
+      let studentCountsByClass = new Map();
+      let selectedSubjectId = null; // null = all subjects
+      let editingSlotInfo = null;
+      let subjectSearchQuery = "";
+      let confirmResolver = null;
+      let confirmRequiresPassword = false;
+
+      // Themes for Class Logo Banner
+      const BANNER_THEMES = [
+        {
+          bg: "linear-gradient(135deg, #4b0d12 0%, #7a1f1f 55%, #300609 100%)",
+          accent: "#f0e2b6",
+        },
+        {
+          bg: "linear-gradient(135deg, #09473d 0%, #0f6b5c 55%, #052e27 100%)",
+          accent: "#bbf7d0",
+        },
+        {
+          bg: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #0f172a 100%)",
+          accent: "#93c5fd",
+        },
+        {
+          bg: "linear-gradient(135deg, #78350f 0%, #b45309 55%, #451a03 100%)",
+          accent: "#fde68a",
+        },
+        {
+          bg: "linear-gradient(135deg, #4c1d95 0%, #6d28d9 55%, #2e1065 100%)",
+          accent: "#e9d5ff",
+        },
+      ];
+
+      function getTheme(str) {
+        let hash = 0;
+        const s = String(str || "");
+        for (let i = 0; i < s.length; i++)
+          hash = s.charCodeAt(i) + ((hash << 5) - hash);
+        return BANNER_THEMES[Math.abs(hash) % BANNER_THEMES.length];
+      }
+
+      const escapeHtml = (v) =>
+        String(v ?? "").replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[m],
+        );
+
+      function toast(message, type = "info") {
+        const bg =
+          type === "success"
+            ? "linear-gradient(135deg,#0F6B5C,#0A4F44)"
+            : type === "error"
+              ? "linear-gradient(135deg,#C0392B,#96261A)"
+              : "linear-gradient(135deg,#2E2924,#1A1714)";
+
+        const el = document.createElement("div");
+        el.className =
+          "pointer-events-auto flex items-start gap-2 text-white px-3 py-2 rounded-lg shadow-pop text-[11px] font-medium border border-white/10";
+        el.style.background = bg;
+        el.style.animation = "slideInRight .3s cubic-bezier(.22,1,.36,1) both";
+        el.innerHTML = `<span class="flex-1 leading-relaxed">${escapeHtml(message)}</span>`;
+        document.getElementById("toast-container").appendChild(el);
+        setTimeout(() => el.remove(), 3200);
+      }
+
+      function toggleModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.toggle("hidden");
+      }
+
+      function closeModal(id) {
+        if (id === "modal-confirm") {
+          resolveConfirm(false);
+          return;
+        }
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.add("hidden");
+      }
+
+      function resolveConfirm(val) {
+        const passwordInput = document.getElementById("confirm-password");
+        if (val && confirmRequiresPassword && !passwordInput.value) {
+          passwordInput.focus();
+          return;
+        }
+        const resolver = confirmResolver;
+        confirmResolver = null;
+        confirmRequiresPassword = false;
+        document.getElementById("modal-confirm").classList.add("hidden");
+        document
+          .getElementById("confirm-password-wrap")
+          .classList.add("hidden");
+        if (resolver)
+          resolver(
+            val ? { confirmed: true, password: passwordInput.value } : null,
+          );
+        passwordInput.value = "";
+      }
+
+      function askConfirm({
+        title,
+        message,
+        confirmText = "លុប",
+        requirePassword = false,
+      }) {
+        return new Promise((resolve) => {
+          document.getElementById("confirm-title").textContent = title;
+          document.getElementById("confirm-message").textContent = message;
+          document.getElementById("confirm-ok").textContent = confirmText;
+          confirmRequiresPassword = requirePassword;
+          document
+            .getElementById("confirm-password-wrap")
+            .classList.toggle("hidden", !requirePassword);
+          document.getElementById("confirm-password").value = "";
+          confirmResolver = resolve;
+          document.getElementById("modal-confirm").classList.remove("hidden");
+        });
+      }
+
+      async function api(url, options = {}) {
+        const res = await fetch(url, options);
+        let data = null;
+        try {
+          data = await res.json();
+        } catch (_) {}
+        if (!res.ok)
+          throw new Error(
+            data?.detail || data?.message || `បញ្ហា (${res.status})`,
+          );
+        return data;
+      }
+
+      /* ========================================================
+         LOAD DATA (Classes, Subjects, Students)
+      ======================================================== */
+      async function loadData() {
+        try {
+          const [resClasses, resStudents] = await Promise.all([
+            api(`/api/manage/${encodeURIComponent(USERNAME)}/classes`),
+            api(`/api/manage/${encodeURIComponent(USERNAME)}/students`),
+          ]);
+
+          classes = resClasses.classes || [];
+          subjects = resClasses.subjects || [];
+          students = resStudents.students || [];
+          subjectsById = new Map(
+            subjects.map((subject) => [String(subject.id), subject]),
+          );
+          classCountsBySubject = new Map();
+          for (const classInfo of classes) {
+            const subjectId = String(classInfo.subject_id);
+            classCountsBySubject.set(
+              subjectId,
+              (classCountsBySubject.get(subjectId) || 0) + 1,
+            );
+          }
+          studentCountsByClass = new Map();
+          for (const student of students) {
+            const classId = String(student.class_id);
+            studentCountsByClass.set(
+              classId,
+              (studentCountsByClass.get(classId) || 0) + 1,
+            );
+          }
+
+          populateSubjectOptions();
+          updateStats();
+          renderSidebarSubjects();
+          renderClassesCanvas();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      function populateSubjectOptions() {
+        const select = document.getElementById("class-subject-id");
+        select.innerHTML = subjects.length
+          ? '<option value="">-- ជ្រើសរើសមុខវិជ្ជា --</option>' +
+            subjects
+              .map(
+                (s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`,
+              )
+              .join("")
+          : '<option value="">សូមបង្កើតមុខវិជ្ជាជាមុន</option>';
+      }
+
+      /* ========================================================
+         UPDATE STATS PANEL
+      ======================================================== */
+      function updateStats() {
+        const label1 = document.getElementById("stat-label-1");
+        const val1 = document.getElementById("stat-val-1");
+        const label2 = document.getElementById("stat-label-2");
+        const val2 = document.getElementById("stat-val-2");
+        const label3 = document.getElementById("stat-label-3");
+        const val3 = document.getElementById("stat-val-3");
+
+        if (selectedSubjectId === null) {
+          // ទំព័រដំបូង៖ បង្ហាញព័ត៌មានរួមទាំងអស់
+          label1.textContent = "ចំនួនមុខវិជ្ជា";
+          val1.textContent = `${subjects.length} មុខវិជ្ជា`;
+
+          label2.textContent = "ចំនួនថ្នាក់សរុប";
+          val2.textContent = `${classes.length} ថ្នាក់`;
+
+          label3.textContent = "ចំនួនសិស្សសរុប";
+          val3.textContent = `${students.length} នាក់`;
+        } else {
+          // ពេលចុចលើមុខវិជ្ជាជាក់លាក់
+          const curSubject = subjectsById.get(String(selectedSubjectId));
+          const subClasses = classes.filter(
+            (c) => String(c.subject_id) === String(selectedSubjectId),
+          );
+          const subStudentCount = subClasses.reduce(
+            (total, classInfo) =>
+              total + (studentCountsByClass.get(String(classInfo.id)) || 0),
+            0,
+          );
+
+          label1.textContent = "មុខវិជ្ជាបច្ចុប្បន្ន";
+          val1.textContent = curSubject ? curSubject.name : "--";
+
+          label2.textContent = "ចំនួនថ្នាក់ក្នុងមុខវិជ្ជានេះ";
+          val2.textContent = `${subClasses.length} ថ្នាក់`;
+          label3.textContent = "ចំនួនសិស្សក្នុងមុខវិជ្ជានេះ";
+          val3.textContent = `${subStudentCount} នាក់`;
+        }
+      }
+
+      /* ========================================================
+         SIDEBAR SUBJECTS
+      ======================================================== */
+      function renderSidebarSubjects() {
+        const container = document.getElementById("subject-nav-list");
+        document.getElementById("subject-total-count").textContent =
+          subjects.length;
+
+        const filtered = subjects.filter((s) =>
+          (s.name || "")
+            .toLowerCase()
+            .includes(subjectSearchQuery.toLowerCase()),
+        );
+
+        // ប៊ូតុង «មុខវិជ្ជាទាំងអស់» (Item 0)
+        const isAllActive = selectedSubjectId === null;
+        let html = `
+          <div
+            onclick="selectSubject(null)"
+            class="subject-nav-item ${isAllActive ? "is-active" : ""}"
+            role="button"
+            tabindex="0"
+          >
+            <div class="subject-icon-box">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="subject-text font-semibold text-[11.5px] truncate">
+                មុខវិជ្ជាទាំងអស់
+              </p>
+            </div>
+            <span class="subject-badge text-[9.5px] font-bold px-2 py-0.5 rounded-full border border-line bg-canvas text-muted">
+              ${classes.length} ថ្នាក់
+            </span>
+          </div>
+        `;
+
+        if (!filtered.length && subjectSearchQuery) {
+          html += `<div class="text-center py-6 text-[11px] text-muted">រកមិនឃើញមុខវិជ្ជាទេ</div>`;
+        } else {
+          html += filtered
+            .map((sub) => {
+              const isActive = String(sub.id) === String(selectedSubjectId);
+              const count = classCountsBySubject.get(String(sub.id)) || 0;
+
+              return `
+              <div
+                onclick="selectSubject('${sub.id}')"
+                class="subject-nav-item ${isActive ? "is-active" : ""}"
+                role="button"
+                tabindex="0"
+              >
+                <div class="subject-icon-box">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="subject-text font-semibold text-[11.5px] truncate">
+                    ${escapeHtml(sub.name)}
+                  </p>
+                </div>
+                <span class="subject-badge text-[9.5px] font-bold px-2 py-0.5 rounded-full border border-line bg-canvas text-muted">
+                  ${count} ថ្នាក់
+                </span>
+                <button type="button" onclick="event.stopPropagation(); confirmDeleteSubject(${sub.id})" title="លុបមុខវិជ្ជា" class="text-muted hover:text-red-600 p-1" aria-label="លុបមុខវិជ្ជា ${escapeHtml(sub.name)}">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            `;
+            })
+            .join("");
+        }
+
+        container.innerHTML = html;
+      }
+
+      function selectSubject(subjectId) {
+        selectedSubjectId = subjectId !== null ? String(subjectId) : null;
+        updateStats();
+        renderSidebarSubjects();
+        renderClassesCanvas();
+      }
+
+      function handleSubjectSearch() {
+        subjectSearchQuery = document.getElementById(
+          "search-subject-input",
+        ).value;
+        renderSidebarSubjects();
+      }
+
+      /* ========================================================
+         MAIN CONTENT: CLASS CARDS (Centered Caption)
+      ======================================================== */
+      function renderClassesCanvas() {
+        const canvas = document.getElementById("classes-canvas");
+        const titleEl = document.getElementById("view-title");
+        const subtitleEl = document.getElementById("view-subtitle");
+
+        const curSubject =
+          selectedSubjectId !== null
+            ? subjectsById.get(String(selectedSubjectId))
+            : null;
+
+        const filteredClasses =
+          selectedSubjectId === null
+            ? classes
+            : classes.filter(
+                (c) => String(c.subject_id) === String(selectedSubjectId),
+              );
+
+        titleEl.textContent = curSubject
+          ? curSubject.name
+          : "បន្ទប់ថ្នាក់ទាំងអស់";
+        subtitleEl.textContent = `${filteredClasses.length} បន្ទប់ថ្នាក់កំពុងដំណើរការ`;
+
+        if (!filteredClasses.length) {
+          canvas.innerHTML = `
+            <div class="h-72 grid place-items-center text-center">
+              <div class="max-w-xs">
+                <div class="w-12 h-12 rounded-xl bg-white border border-line grid place-items-center mx-auto mb-3 shadow-card">
+                  <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                </div>
+                <h3 class="font-moul text-[13px] text-ink">មិនទាន់មានបន្ទប់ថ្នាក់</h3>
+                <p class="text-[11px] text-muted mt-1 leading-relaxed">
+                  ${curSubject ? `មិនទាន់មានថ្នាក់សម្រាប់មុខវិជ្ជា "${escapeHtml(curSubject.name)}" នៅឡើយទេ` : "សូមចុចបង្កើតថ្នាក់រៀនថ្មីដំបូង"}
+                </p>
+                <button onclick="openCreateClassModal()" class="btn btn-primary mt-3 text-[11px] py-1.5 px-3">
+                  បង្កើតថ្នាក់ថ្មី
+                </button>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        canvas.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            ${filteredClasses
+              .map((c) => {
+                const theme = getTheme(c.class_name);
+                const slot =
+                  c.time_slots && c.time_slots.length > 0
+                    ? c.time_slots[0]
+                    : null;
+                const subObj = subjectsById.get(String(c.subject_id));
+                const subjectName = subObj
+                  ? subObj.name
+                  : slot?.subject || "មុខវិជ្ជាទូទៅ";
+                const timeDisplay = slot
+                  ? `${slot.start_time} - ${slot.end_time}`
+                  : "មិនទាន់កំណត់ម៉ោង";
+
+                return `
+                <div 
+                  class="class-card group"
+                  onclick="openStudentsForClass(${c.id})"
+                  title="ចុចដើម្បីមើលបញ្ជីសិស្សក្នុងថ្នាក់នេះ"
+                >
+                  <!-- 1. Logo Banner (ឈ្មោះថ្នាក់) -->
+                  <div class="class-logo-banner" style="background: ${theme.bg};">
+                    <svg class="banner-watermark-icon" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+                    </svg>
+                    
+                    <div class="flex items-center justify-between z-10">
+                      <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm border border-white/20">
+                        ថ្នាក់សិក្សា
+                      </span>
+
+                      <!-- Edit Time / Delete Class Actions -->
+                      <div class="flex items-center gap-1" onclick="event.stopPropagation();">
+                        ${
+                          slot
+                            ? `
+                          <button
+                            onclick="openEditTimeModal(${c.id}, ${slot.id}, '${escapeHtml(slot.start_time)}', '${escapeHtml(slot.end_time)}', '${escapeHtml(c.class_name)}')"
+                            class="w-6 h-6 rounded-md bg-white/10 hover:bg-white/25 text-white/90 grid place-items-center transition"
+                            title="កែប្រែម៉ោងសិក្សា"
+                          >
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                          </button>
+                        `
+                            : ""
+                        }
+
+                        <button
+                          onclick="confirmDeleteClass(${c.id}, '${escapeHtml(c.class_name)}')"
+                          class="w-6 h-6 rounded-md bg-white/10 hover:bg-red-500/80 text-white/90 grid place-items-center transition"
+                          title="លុបថ្នាក់នេះ"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <h3 class="class-logo-text" title="${escapeHtml(c.class_name)}">
+                      ${escapeHtml(c.class_name)}
+                    </h3>
+
+                    <div class="h-0.5 w-1/3 mx-auto rounded-full z-10" style="background: ${theme.accent};"></div>
+                  </div>
+
+                  <!-- 2. Caption ថ្នាក់ (ស្ថិតនៅចំកណ្តាល៖ ឈ្មោះមុខវិជ្ជា បន្ទាប់មកគឺម៉ោង) -->
+                  <div class="p-3.5 flex flex-col items-center justify-center text-center flex-1 bg-white">
+                    <!-- ឈ្មោះមុខវិជ្ជា (កណ្តាល) -->
+                    <div class="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-gold-soft border border-gold/30 text-gold-deep text-[11px] font-bold">
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                      </svg>
+                      <span class="truncate max-w-[170px]">${escapeHtml(subjectName)}</span>
+                    </div>
+
+                    <!-- ម៉ោងសិក្សា (កណ្តាល) -->
+                    <div class="mt-2 flex items-center justify-center gap-1.5 text-jade font-bold text-[12px]">
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <span class="tracking-wide">${escapeHtml(timeDisplay)}</span>
+                    </div>
+
+                    <!-- Footer Link -->
+                    <div class="w-full mt-3 pt-2 border-t border-line flex items-center justify-center gap-1 text-[10.5px] font-semibold text-muted group-hover:text-jade transition">
+                      <span>មើលបញ្ជីសិស្ស</span>
+                      <span class="transition-transform group-hover:translate-x-0.5">→</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+              })
+              .join("")}
+          </div>
+        `;
+      }
+
+      function openStudentsForClass(classId) {
+        const query = new URLSearchParams({ class_id: String(classId) });
+        window.location.href =
+          `/manage/${encodeURIComponent(USERNAME)}/students?${query.toString()}`;
+      }
+
+      function openCreateSubject() {
+        toggleModal("modal-create-subject");
+        setTimeout(() => document.getElementById("subject-name").focus(), 50);
+      }
+
+      function openCreateClassModal() {
+        const select = document.getElementById("class-subject-id");
+        if (selectedSubjectId) select.value = selectedSubjectId;
+        toggleModal("modal-create-class");
+      }
+
+      /* ========================================================
+         TIME PARSING & FORMATTING (Asian Time)
+      ======================================================== */
+      function parseKhmerTime(str) {
+        if (!str) return { hour: "7", min: "00", period: "ព្រឹក" };
+        const match = str.match(/(\d{1,2}):(\d{2})\s*(ព្រឹក|រសៀល|ល្ងាច|យប់)?/);
+        if (match) {
+          return {
+            hour: String(parseInt(match[1], 10)),
+            min: match[2],
+            period: match[3] || "ព្រឹក",
+          };
+        }
+        return { hour: "7", min: "00", period: "ព្រឹក" };
+      }
+
+      function openEditTimeModal(
+        classId,
+        slotId,
+        startTime,
+        endTime,
+        className,
+      ) {
+        editingSlotInfo = { classId, slotId };
+        document.getElementById("modal-edit-class-name").textContent =
+          className;
+
+        const s = parseKhmerTime(startTime);
+        const e = parseKhmerTime(endTime);
+
+        document.getElementById("edit-start-hour").value = s.hour;
+        document.getElementById("edit-start-min").value = s.min;
+        document.getElementById("edit-start-period").value = s.period;
+
+        document.getElementById("edit-end-hour").value = e.hour;
+        document.getElementById("edit-end-min").value = e.min;
+        document.getElementById("edit-end-period").value = e.period;
+
+        toggleModal("modal-edit-time");
+      }
+
+      // Submit: Create Subject
+      document
+        .getElementById("form-create-subject")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const form = e.target;
+          try {
+            const res = await api(
+              `/api/manage/${encodeURIComponent(USERNAME)}/subjects`,
+              {
+                method: "POST",
+                body: new FormData(form),
+              },
+            );
+            toast(res.message || "បង្កើតមុខវិជ្ជាបានជោគជ័យ", "success");
+            closeModal("modal-create-subject");
+            form.reset();
+            selectedSubjectId = String(res.data.id);
+            await loadData();
+          } catch (err) {
+            toast(err.message, "error");
+          }
+        });
+
+      // Submit: Create Class (Sends Asian formatted times)
+      document
+        .getElementById("form-create-class")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const form = e.target;
+
+          const sHour = document.getElementById("create-start-hour").value;
+          const sMin = document.getElementById("create-start-min").value;
+          const sPeriod = document.getElementById("create-start-period").value;
+          const startTimeStr = `${sHour}:${sMin} ${sPeriod}`;
+
+          const eHour = document.getElementById("create-end-hour").value;
+          const eMin = document.getElementById("create-end-min").value;
+          const ePeriod = document.getElementById("create-end-period").value;
+          const endTimeStr = `${eHour}:${eMin} ${ePeriod}`;
+
+          const formData = new FormData(form);
+          formData.set("start_time", startTimeStr);
+          formData.set("end_time", endTimeStr);
+
+          try {
+            const res = await api(
+              `/api/manage/${encodeURIComponent(USERNAME)}/classes`,
+              {
+                method: "POST",
+                body: formData,
+              },
+            );
+            toast(res.message || "បង្កើតថ្នាក់បានជោគជ័យ", "success");
+            closeModal("modal-create-class");
+            selectedSubjectId = String(res.data.subject_id);
+            form.reset();
+            await loadData();
+          } catch (err) {
+            toast(err.message, "error");
+          }
+        });
+
+      // Submit: Edit Time Slot (Sends Asian formatted times)
+      document
+        .getElementById("form-edit-time")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!editingSlotInfo) return;
+
+          const sHour = document.getElementById("edit-start-hour").value;
+          const sMin = document.getElementById("edit-start-min").value;
+          const sPeriod = document.getElementById("edit-start-period").value;
+          const startTimeStr = `${sHour}:${sMin} ${sPeriod}`;
+
+          const eHour = document.getElementById("edit-end-hour").value;
+          const eMin = document.getElementById("edit-end-min").value;
+          const ePeriod = document.getElementById("edit-end-period").value;
+          const endTimeStr = `${eHour}:${eMin} ${ePeriod}`;
+
+          const formData = new FormData();
+          formData.append("start_time", startTimeStr);
+          formData.append("end_time", endTimeStr);
+
+          try {
+            const res = await api(
+              `/api/manage/${encodeURIComponent(USERNAME)}/classes/${editingSlotInfo.classId}/timeslots/${editingSlotInfo.slotId}`,
+              {
+                method: "PUT",
+                body: formData,
+              },
+            );
+            toast(res.message || "កែប្រែម៉ោងសិក្សាបានជោគជ័យ", "success");
+            closeModal("modal-edit-time");
+            editingSlotInfo = null;
+            await loadData();
+          } catch (err) {
+            toast(err.message, "error");
+          }
+        });
+
+      // Delete Class
+      async function confirmDeleteClass(classId, className) {
+        const ok = await askConfirm({
+          title: "លុបថ្នាក់រៀន?",
+          message: `តើអ្នកពិតជាចង់លុបថ្នាក់ "${className}" មែនទេ? ទិន្នន័យទាំងអស់នៃថ្នាក់នេះនឹងត្រូវលុប។`,
+          confirmText: "លុបថ្នាក់",
+          requirePassword: true,
+        });
+        if (!ok?.confirmed) return;
+
+        const formData = new FormData();
+        formData.append("password", ok.password);
+
+        try {
+          const res = await api(
+            `/api/manage/${encodeURIComponent(USERNAME)}/classes/${classId}`,
+            {
+              method: "DELETE",
+              body: formData,
+            },
+          );
+          toast(res.message || "លុបថ្នាក់បានជោគជ័យ", "success");
+          await loadData();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      async function confirmDeleteSubject(subjectId) {
+        const subject = subjects.find((item) => item.id === subjectId);
+        if (!subject) return;
+        const ok = await askConfirm({
+          title: "លុបមុខវិជ្ជា?",
+          message: `តើអ្នកពិតជាចង់លុបមុខវិជ្ជា "${subject.name}" មែនទេ? មុខវិជ្ជាដែលមានថ្នាក់កំពុងប្រើមិនអាចលុបបានទេ។`,
+          confirmText: "លុបមុខវិជ្ជា",
+          requirePassword: true,
+        });
+        if (!ok?.confirmed) return;
+
+        const formData = new FormData();
+        formData.append("password", ok.password);
+        try {
+          const res = await api(
+            `/api/manage/${encodeURIComponent(USERNAME)}/subjects/${subjectId}`,
+            {
+              method: "DELETE",
+              body: formData,
+            },
+          );
+          if (String(selectedSubjectId) === String(subjectId))
+            selectedSubjectId = null;
+          toast(res.message || "លុបមុខវិជ្ជាបានជោគជ័យ", "success");
+          await loadData();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      // Initial Load
+      loadData();
+    </script>
+  </body>
+</html>

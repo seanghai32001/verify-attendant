@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="km">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#4B0D12" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="format-detection" content="telephone=no" />
+
+    <title>ផ្ញើសារសិស្ស - {{ inst.institution_name }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#211D19",
+              muted: "#7B7268",
+              line: "#E7E1D7",
+              canvas: "#F6F4F0",
+              maroon: { DEFAULT: "#7A1F1F", dark: "#4B0D12", soft: "#F7EAEA" },
+              gold: {
+                DEFAULT: "#C9A227",
+                light: "#F0E2B6",
+                soft: "#FBF3DF",
+                deep: "#9A7A14",
+              },
+              jade: { DEFAULT: "#0F6B5C", dark: "#0A4F44", soft: "#EAF5F2" },
+            },
+            fontFamily: {
+              khmer: ['"Kantumruy Pro"', "sans-serif"],
+              moul: ['"Moul"', "serif"],
+            },
+            boxShadow: {
+              card: "0 1px 2px rgba(33,29,25,.04), 0 8px 24px -16px rgba(33,29,25,.35)",
+              header: "0 8px 24px -14px rgba(75,13,18,.75)",
+              fab: "0 12px 28px -8px rgba(15,107,92,.6)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        overscroll-behavior-y: contain;
+      }
+
+      body {
+        font-family: "Kantumruy Pro", sans-serif;
+        color: #211d19;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background-color: #f6f4f0;
+        background-image:
+          radial-gradient(
+            circle at 8% -10%,
+            rgba(201, 162, 39, 0.13),
+            transparent 42%
+          ),
+          radial-gradient(
+            circle at 102% 108%,
+            rgba(15, 107, 92, 0.09),
+            transparent 45%
+          );
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(16px);
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .animate-fade-up {
+        animation: fadeUp 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .animate-slide-up {
+        animation: slideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .spinner {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid #ece7de;
+        border-top-color: #0f6b5c;
+        border-right-color: #c9a227;
+        animation: spin 0.75s linear infinite;
+      }
+
+      /* Filter chips */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        border: 1px solid #e7e1d7;
+        background: #ffffff;
+        color: #4b453e;
+        transition: all 0.18s ease;
+      }
+      .chip:active {
+        transform: scale(0.96);
+      }
+      .chip.is-active {
+        background: linear-gradient(135deg, #0f6b5c, #0a4f44);
+        color: #ffffff;
+        border-color: rgba(201, 162, 39, 0.55);
+        box-shadow: 0 6px 14px -8px rgba(15, 107, 92, 0.85);
+      }
+
+      /* Student tap-card */
+      .student-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 14px;
+        background: #ffffff;
+        border: 1px solid #e7e1d7;
+        border-radius: 14px;
+        transition: all 0.16s ease;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .student-item:active {
+        transform: scale(0.985);
+      }
+
+      .student-item.is-selected {
+        background: linear-gradient(135deg, #eaf5f2, #dcf0eb);
+        border-color: rgba(15, 107, 92, 0.55);
+        box-shadow: 0 6px 16px -10px rgba(15, 107, 92, 0.7);
+      }
+
+      /* Custom checkbox look */
+      .student-check {
+        width: 24px;
+        height: 24px;
+        border-radius: 8px;
+        border: 2px solid #cfc7ba;
+        background: #ffffff;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        transition: all 0.18s ease;
+        color: transparent;
+      }
+      .student-item.is-selected .student-check {
+        background: #0f6b5c;
+        border-color: #0f6b5c;
+        color: #ffffff;
+      }
+
+      /* Floating action button */
+      .fab {
+        position: fixed;
+        right: 16px;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+        z-index: 45;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 20px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #0f6b5c, #0a4f44);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 13.5px;
+        box-shadow: 0 12px 28px -8px rgba(15, 107, 92, 0.6);
+        transition:
+          transform 0.18s ease,
+          opacity 0.18s ease;
+      }
+      .fab:active {
+        transform: scale(0.95);
+      }
+      .fab:disabled {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+      }
+      .fab .badge-count {
+        background: #c9a227;
+        color: #4b0d12;
+        min-width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        display: inline-grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 0 6px;
+      }
+
+      /* Bottom sheet */
+      .bottom-sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        background: rgba(20, 15, 10, 0.5);
+        backdrop-filter: blur(4px);
+        animation: fadeUp 0.2s ease both;
+      }
+      .bottom-sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 51;
+        background: #ffffff;
+        border-top-left-radius: 22px;
+        border-top-right-radius: 22px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+        box-shadow: 0 -20px 60px -20px rgba(33, 29, 25, 0.5);
+      }
+      .sheet-handle {
+        width: 44px;
+        height: 4px;
+        background: #e7e1d7;
+        border-radius: 999px;
+        margin: 10px auto 0;
+      }
+
+      /* Toast */
+      #toastBox {
+        animation: fadeUp 0.3s ease both;
+      }
+
+      .pb-safe-fab {
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen flex flex-col">
+    <!-- ================= HEADER ================= -->
+    <header
+      class="sticky top-0 z-40 text-white shadow-header pt-safe"
+      style="
+        background: linear-gradient(
+          120deg,
+          #4b0d12 0%,
+          #7a1f1f 48%,
+          #4b0d12 100%
+        );
+      "
+    >
+      <div
+        class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent"
+      ></div>
+
+      <div class="relative px-4 h-14 flex items-center gap-3">
+        {% if inst.profile_image_url %}
+        <div
+          class="shrink-0 rounded-full p-[2px] bg-gradient-to-br from-gold-light via-gold to-gold-deep"
+        >
+          <img
+            src="{{ inst.profile_image_url }}"
+            alt="Logo"
+            class="w-9 h-9 rounded-full object-cover bg-white"
+          />
+        </div>
+        {% else %}
+        <div
+          class="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-jade to-jade-dark text-white grid place-items-center font-bold text-sm border-2 border-gold/80"
+        >
+          {{ inst.institution_name[0] }}
+        </div>
+        {% endif %}
+
+        <div class="min-w-0 flex-1">
+          <p
+            class="text-[8px] uppercase tracking-[0.2em] text-gold-light/75 font-semibold leading-none"
+          >
+            ផ្ញើសារសិស្ស
+          </p>
+          <h1
+            class="font-moul text-[12px] tracking-wide text-white truncate mt-0.5"
+          >
+            {{ inst.institution_name }}
+          </h1>
+        </div>
+
+{% if public_mode|default(false) %}
+        <button type="button" onclick="goBack()" class="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/10 border border-white/25 px-2.5 py-1.5 text-[10px] font-semibold text-white active:scale-95 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6M9 12h12" /></svg>
+          ត្រឡប់ក្រោយ
+        </button>
+        {% else %}
+        <div
+          class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+            ></span>
+            <span
+              class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"
+            ></span>
+          </span>
+          <span class="text-[10px] font-semibold text-white/90">បង្ហាញ</span>
+        </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main
+      class="flex-1 px-3 py-4 space-y-4 max-w-[640px] w-full mx-auto pb-safe-fab"
+    >
+      <!-- Management Telegram status -->
+      {% if not public_mode|default(false) %}
+      <section
+        id="tgBar"
+        class="rounded-xl bg-white border border-line px-3.5 py-3 shadow-card flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-2 text-[11.5px] min-w-0">
+          <span
+            class="w-2 h-2 rounded-full bg-muted shrink-0"
+            id="tgDot"
+          ></span>
+          <span id="tgStatus" class="text-muted truncate"
+            >កំពុងពិនិត្យ Telegram...</span
+          >
+        </div>
+        <a
+          href="/manage/{{ inst.inst_username }}/telegram"
+          class="shrink-0 text-[10.5px] bg-jade/10 text-jade border border-jade/30 px-2.5 py-1 rounded-lg font-semibold active:scale-95 transition"
+        >
+          ភ្ជាប់
+        </a>
+      </section>
+      {% endif %}
+
+      <!-- Class chips -->
+      <section class="animate-fade-up {% if public_mode|default(false) %}hidden{% endif %}">
+        <div class="flex items-center justify-between mb-2">
+          <p
+            class="text-[10px] uppercase tracking-[0.18em] font-bold text-muted"
+          >
+            ថ្នាក់រៀន
+          </p>
+          <span id="classCountLabel" class="text-[10px] text-muted/80"></span>
+        </div>
+        <div
+          id="classChips"
+          class="flex gap-2 overflow-x-auto no-scrollbar -mx-3 px-3 pb-1"
+        >
+          <div class="chip">កំពុងទាញ...</div>
+        </div>
+      </section>
+
+      <!-- Search -->
+      <section class="animate-fade-up" style="animation-delay: 0.05s">
+        <div class="relative">
+          <svg
+            class="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            id="searchStudent"
+            type="text"
+            placeholder="ស្វែងរកឈ្មោះសិស្ស..."
+            autocomplete="off"
+            class="w-full pl-10 pr-3 py-3 bg-white border border-line rounded-xl text-[13px] text-ink placeholder-muted/70 focus:outline-none focus:ring-2 focus:ring-jade/30 focus:border-jade/50 transition"
+          />
+        </div>
+      </section>
+
+      <!-- Selection info -->
+      <section class="animate-fade-up" style="animation-delay: 0.1s">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h2 id="listTitle" class="font-moul text-[13px] text-ink">
+              បញ្ជីសិស្ស
+            </h2>
+            <p id="listSub" class="text-[10.5px] text-muted mt-0.5">
+              កំពុងទាញ...
+            </p>
+          </div>
+          <button
+            id="btnSelectAll"
+            type="button"
+            class="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-jade/30 bg-jade/10 text-jade active:scale-95 transition"
+          >
+            ជ្រើសទាំងអស់
+          </button>
+        </div>
+
+        <!-- Student list -->
+        <div id="studentList" class="space-y-2">
+          <div class="flex justify-center py-14">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FLOATING SEND BUTTON ================= -->
+    <button
+      id="fab"
+      class="fab"
+      type="button"
+      disabled
+      onclick="openComposer()"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+        />
+      </svg>
+      <span>ផ្ញើសារ</span>
+      <span class="badge-count" id="fabCount">0</span>
+    </button>
+
+    <!-- ================= COMPOSER BOTTOM SHEET ================= -->
+    <div id="composerBackdrop" class="hidden">
+      <div class="bottom-sheet-backdrop" onclick="closeComposer()"></div>
+      <div class="bottom-sheet">
+        <div class="sheet-handle"></div>
+
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-line"
+        >
+          <div class="min-w-0">
+            <h3 class="font-moul text-[13px] text-ink">ផ្ញើសារ Telegram</h3>
+            <p class="text-[10.5px] text-muted mt-0.5">
+              ជូនអាណាព្យាបាល
+              <span id="composerRecipientCount" class="font-semibold text-jade"
+                >0</span
+              >
+              នាក់
+            </p>
+          </div>
+          <button
+            onclick="closeComposer()"
+            class="w-9 h-9 rounded-full grid place-items-center text-muted hover:text-ink hover:bg-canvas transition"
+            aria-label="បិទ"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+          <!-- Template picker -->
+          <div>
+            <label
+              for="messageTemplate"
+              class="block text-[11px] font-semibold text-ink mb-1.5"
+            >
+              គំរូសារ
+            </label>
+            <select
+              id="messageTemplate"
+              class="w-full px-3 py-2.5 bg-canvas border border-line rounded-lg text-[12.5px] text-ink focus:outline-none focus:ring-2 focus:ring-jade/30"
+            >
+              <option value="">-- សរសេរដោយដៃ --</option>
+            </select>
+          </div>
+
+          <!-- Message content -->
+          <div>
+            <label
+              for="messageContent"
+              class="block text-[11px] font-semibold text-ink mb-1.5"
+            >
+              ខ្លឹមសារសារ
+            </label>
+            <textarea
+              id="messageContent"
+              rows="5"
+              placeholder="សួស្តី អាណាព្យាបាលនៃ {student_name}..."
+              class="w-full px-3 py-2.5 bg-canvas border border-line rounded-lg text-[12.5px] text-ink leading-relaxed focus:outline-none focus:ring-2 focus:ring-jade/30 resize-none"
+            ></textarea>
+            <p class="mt-1.5 text-[10px] text-muted leading-relaxed">
+              អាចប្រើ <span class="font-mono text-jade">{student_name}</span>,
+              <span class="font-mono text-jade">{class_name}</span>,
+              <span class="font-mono text-jade">{subject}</span>,
+              <span class="font-mono text-jade">{start_time}</span>,
+              <span class="font-mono text-jade">{end_time}</span>,
+              <span class="font-mono text-jade">{date}</span>,
+              <span class="font-mono text-jade">{note}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="px-4 pt-3 pb-4 border-t border-line flex gap-2">
+          <button
+            type="button"
+            onclick="closeComposer()"
+            class="flex-1 py-3 rounded-xl border border-line text-[12.5px] font-semibold text-muted active:scale-[0.98] transition"
+          >
+            បោះបង់
+          </button>
+          <button
+            id="btnSend"
+            type="button"
+            onclick="sendMessages()"
+            class="flex-1 py-3 rounded-xl bg-gradient-to-r from-jade to-jade-dark text-white text-[12.5px] font-bold active:scale-[0.98] transition shadow-md disabled:opacity-50"
+          >
+            ផ្ញើឥឡូវនេះ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= RESULT MODAL ================= -->
+    <div
+      id="resultModal"
+      class="fixed inset-0 z-[60] items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-sm w-full max-h-[80vh] overflow-hidden border border-line flex flex-col"
+      >
+        <div
+          class="px-4 py-3 bg-gradient-to-r from-jade to-jade-dark text-white flex items-center justify-between"
+        >
+          <h3 class="font-moul text-[13px]">លទ្ធផលផ្ញើសារ</h3>
+          <button
+            onclick="closeResultModal()"
+            class="text-white/80 hover:text-white font-bold"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="p-4 overflow-y-auto space-y-2" id="resultContent"></div>
+        <div class="p-3 border-t border-line bg-canvas flex justify-end">
+          <button
+            onclick="closeResultModal()"
+            class="px-5 py-2 rounded-lg bg-jade text-white text-[12px] font-semibold active:scale-95 transition"
+          >
+            យល់ព្រម
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TOAST ================= -->
+    <div
+      id="toast"
+      class="fixed bottom-24 left-4 right-4 sm:left-auto sm:right-5 z-[70] hidden pointer-events-none"
+    >
+      <div
+        id="toastBox"
+        class="bg-gray-900 text-white px-4 py-3 rounded-xl shadow-lg text-[12.5px] font-medium text-center sm:text-left"
+      ></div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+      const USERNAME = {{ inst.inst_username|tojson }};
+      const PUBLIC_MODE = window.location.pathname.startsWith("/public/");
+      let publicClassId = "";
+      let classes = [];
+      let students = [];
+      let studentCountsByClass = new Map();
+      let messageTemplates = [];
+      const selectedIds = new Set();
+      const requestedClassId = new URLSearchParams(window.location.search).get(
+        "class_id",
+      );
+      let activeClassId = requestedClassId || ""; // "" = all classes
+
+      /* ========================================================
+       HELPERS
+    ======================================================== */
+      const esc = (v) =>
+        String(v ?? "").replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[m],
+        );
+
+      function goBack() {
+        window.location.assign(`/public/${encodeURIComponent(USERNAME)}`);
+      }
+
+      function toast(msg, type = "info") {
+        const el = document.getElementById("toast");
+        const box = document.getElementById("toastBox");
+        const colors = {
+          success: "background:linear-gradient(135deg,#0F6B5C,#0A4F44)",
+          error: "background:linear-gradient(135deg,#C0392B,#96261A)",
+          info: "background:#1A1714",
+        };
+        box.style.cssText = colors[type] || colors.info;
+        box.textContent = msg;
+        el.classList.remove("hidden");
+        setTimeout(() => el.classList.add("hidden"), 3200);
+      }
+
+      async function api(url, opts = {}) {
+        if (PUBLIC_MODE && url.endsWith("/telegram/send")) {
+          const body = JSON.parse(opts.body || "{}");
+          const classId = body.class_id || publicClassId;
+          url = `/api/public/${encodeURIComponent(USERNAME)}/classes/${encodeURIComponent(classId)}/send`;
+        }
+        const r = await fetch(url, opts);
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || data.detail || "មានបញ្ហា");
+        return data;
+      }
+
+      /* ========================================================
+       LOAD DATA
+    ======================================================== */
+      async function loadClasses() {
+        const res = await api(`/api/manage/${USERNAME}/classes`);
+        classes = res.classes || [];
+        if (!classes.some((classInfo) => String(classInfo.id) === activeClassId)) {
+          activeClassId = "";
+        }
+        renderClassChips();
+      }
+
+      async function loadPublicClassView() {
+        const classId = new URLSearchParams(window.location.search).get("class_id");
+        if (!classId || !/^\d+$/.test(classId)) throw new Error("Please choose a class.");
+        const data = await api(`/api/public/${encodeURIComponent(USERNAME)}/classes/${encodeURIComponent(classId)}/students`);
+        const classInfo = data.class;
+        if (!classInfo) throw new Error("Class not found.");
+        publicClassId = String(classInfo.id);
+        classes = [classInfo];
+        students = data.students || [];
+        messageTemplates = data.templates || [];
+        activeClassId = publicClassId;
+        selectedIds.clear();
+        studentCountsByClass = new Map([[activeClassId, students.length]]);
+        const templateSelect = document.getElementById("messageTemplate");
+        templateSelect.innerHTML = '<option value="">-- ជ្រើសរើស --</option>' +
+          messageTemplates.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
+        if (messageTemplates.length) {
+          templateSelect.value = messageTemplates[0].id;
+          document.getElementById("messageContent").value = messageTemplates[0].content || "";
+        }
+        document.getElementById("btnSelectAll").hidden = false;
+        renderClassChips();
+        renderStudents();
+        updateFab();
+      }
+      async function loadStudents() {
+        const res = await api(`/api/manage/${USERNAME}/students`);
+        students = res.students || [];
+        studentCountsByClass = new Map();
+        for (const student of students) {
+          const classId = String(student.class_id);
+          studentCountsByClass.set(
+            classId,
+            (studentCountsByClass.get(classId) || 0) + 1,
+          );
+        }
+        selectedIds.clear();
+        renderClassChips();
+        renderStudents();
+        updateFab();
+      }
+
+      async function loadTgStatus() {
+        try {
+          const res = await api(`/api/manage/${USERNAME}/telegram/status`);
+          const dot = document.getElementById("tgDot");
+          const el = document.getElementById("tgStatus");
+          if (res.connected) {
+            dot.style.background = "#0F6B5C";
+            el.innerHTML = `<span class="text-jade font-semibold">ភ្ជាប់រួច</span> · ${esc(res.account_name || res.phone || "")}`;
+          } else {
+            dot.style.background = "#C0392B";
+            el.innerHTML = `<span class="text-red-500 font-semibold">មិនទាន់ភ្ជាប់ Telegram</span>`;
+          }
+        } catch {
+          document.getElementById("tgStatus").textContent = "មិនអាចពិនិត្យបាន";
+        }
+      }
+
+      async function loadTemplates() {
+        try {
+          const res = await api(`/api/manage/${USERNAME}/templates`);
+          messageTemplates = res.templates || [];
+          const sel = document.getElementById("messageTemplate");
+          sel.innerHTML =
+            '<option value="">-- សរសេរដោយដៃ --</option>' +
+            messageTemplates
+              .map((t) => `<option value="${t.id}">${esc(t.name)}</option>`)
+              .join("");
+          if (messageTemplates.length) {
+            sel.value = messageTemplates[0].id;
+            document.getElementById("messageContent").value =
+              messageTemplates[0].content || "";
+          }
+        } catch (_) {
+          /* templates optional */
+        }
+      }
+
+      /* ========================================================
+       RENDER CLASS CHIPS
+    ======================================================== */
+      function renderClassChips() {
+        const container = document.getElementById("classChips");
+        const labelEl = document.getElementById("classCountLabel");
+        labelEl.textContent = `${classes.length} ថ្នាក់`;
+
+        const allActive = activeClassId === "";
+
+        let html = `
+        <button type="button" onclick="selectClass('')" class="chip ${allActive ? "is-active" : ""}">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+          </svg>
+          ទាំងអស់ <span class="opacity-75">(${students.length})</span>
+        </button>
+      `;
+
+        html += classes
+          .map((c) => {
+            const isActive = String(c.id) === String(activeClassId);
+            return `
+            <button type="button" onclick="selectClass('${c.id}')" class="chip ${isActive ? "is-active" : ""}">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              <span class="truncate max-w-[120px]">${esc(c.class_name)}</span>
+              <span class="opacity-75">(${studentCountsByClass.get(String(c.id)) || 0})</span>
+            </button>
+          `;
+          })
+          .join("");
+
+        container.innerHTML = html;
+      }
+
+      function selectClass(classId) {
+        activeClassId = classId ? String(classId) : "";
+        selectedIds.clear();
+        renderClassChips();
+        renderStudents();
+        updateFab();
+      }
+
+      function getVisibleStudents() {
+        const q = (document.getElementById("searchStudent").value || "")
+          .trim()
+          .toLowerCase();
+        return students.filter((student) => {
+          const matchesClass =
+            !activeClassId ||
+            String(student.class_id) === String(activeClassId);
+          const matchesSearch =
+            !q || (student.student_name || "").toLowerCase().includes(q);
+          return matchesClass && matchesSearch;
+        });
+      }
+
+      /* ========================================================
+       RENDER STUDENTS (only name shown)
+    ======================================================== */
+      function renderStudents() {
+        const container = document.getElementById("studentList");
+        const listTitle = document.getElementById("listTitle");
+        const listSub = document.getElementById("listSub");
+        const q = (document.getElementById("searchStudent").value || "")
+          .trim()
+          .toLowerCase();
+        const list = getVisibleStudents();
+
+        const curClass = activeClassId
+          ? classes.find((c) => String(c.id) === String(activeClassId))
+          : null;
+
+        listTitle.textContent = curClass
+          ? curClass.class_name
+          : "បញ្ជីសិស្សទាំងអស់";
+        listSub.textContent = `${list.length} នាក់ · ចុចដើម្បីជ្រើស`;
+
+        if (!list.length) {
+          container.innerHTML = `
+          <div class="rounded-2xl bg-white border border-line p-8 text-center shadow-card">
+            <div class="w-12 h-12 rounded-xl bg-canvas border border-line grid place-items-center mx-auto mb-3">
+              <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M17 20a4 4 0 00-8 0M13 11a4 4 0 100-8 4 4 0 000 8z"/>
+              </svg>
+            </div>
+            <h3 class="font-moul text-[13px] text-ink">មិនមានសិស្ស</h3>
+            <p class="text-[11px] text-muted mt-1">
+              ${q ? "រកមិនឃើញឈ្មោះសិស្សដែលអ្នកកំពុងស្វែងរកទេ" : "មិនទាន់មានទិន្នន័យសិស្សនៅឡើយទេ"}
+            </p>
+          </div>
+        `;
+          updateFab();
+          return;
+        }
+
+        container.innerHTML = list
+          .map((s) => {
+            const id = Number(s.id);
+            const selected = selectedIds.has(id);
+            return `
+            <div
+              class="student-item ${selected ? "is-selected" : ""}"
+              data-id="${id}"
+              onclick="toggleStudent(${id})"
+              role="checkbox"
+              aria-checked="${selected}"
+              tabindex="0"
+            >
+              <div class="student-check">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-[13.5px] font-semibold text-ink truncate">${esc(s.student_name)}</p>
+                ${s.note ? `<p class="text-[10.5px] text-muted truncate mt-0.5">${esc(s.note)}</p>` : ""}
+              </div>
+            </div>
+          `;
+          })
+          .join("");
+
+        updateFab();
+      }
+
+      /* ========================================================
+       SELECTION
+    ======================================================== */
+      function toggleStudent(id) {
+        if (selectedIds.has(id)) selectedIds.delete(id);
+        else selectedIds.add(id);
+        renderStudents();
+        updateFab();
+      }
+
+      function toggleSelectAll() {
+        const visible = getVisibleStudents();
+        const allSelected =
+          visible.length > 0 &&
+          visible.every((s) => selectedIds.has(Number(s.id)));
+
+        if (allSelected) {
+          visible.forEach((s) => selectedIds.delete(Number(s.id)));
+        } else {
+          visible.forEach((s) => selectedIds.add(Number(s.id)));
+        }
+        renderStudents();
+        updateFab();
+      }
+
+      function updateFab() {
+        const fab = document.getElementById("fab");
+        const count = selectedIds.size;
+        document.getElementById("fabCount").textContent = count;
+        document.getElementById("composerRecipientCount").textContent = count;
+        fab.disabled = count === 0;
+
+        const visible = getVisibleStudents();
+        const allSelected =
+          visible.length > 0 &&
+          visible.every((s) => selectedIds.has(Number(s.id)));
+        document.getElementById("btnSelectAll").textContent = allSelected
+          ? "ដកជម្រើសទាំងអស់"
+          : "ជ្រើសទាំងអស់";
+      }
+
+      /* ========================================================
+       COMPOSER
+    ======================================================== */
+      function openComposer() {
+        if (!selectedIds.size) {
+          toast("សូមជ្រើសរើសសិស្សជាមុន", "error");
+          return;
+        }
+        document.getElementById("composerRecipientCount").textContent =
+          selectedIds.size;
+        document.getElementById("composerBackdrop").classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeComposer() {
+        document.getElementById("composerBackdrop").classList.add("hidden");
+        document.body.style.overflow = "";
+      }
+
+      /* ========================================================
+       SEND MESSAGES
+    ======================================================== */
+      async function sendMessages() {
+        const studentIds = [...selectedIds];
+        const message = document.getElementById("messageContent").value.trim();
+        if (!studentIds.length || !message) {
+          toast("សូមជ្រើសសិស្ស និងបញ្ចូលខ្លឹមសារសារ", "error");
+          return;
+        }
+
+        const btn = document.getElementById("btnSend");
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = "កំពុងផ្ញើ...";
+
+        try {
+          const result = await api(`/api/manage/${USERNAME}/telegram/send`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              student_ids: studentIds,
+              custom_message: message,
+              ...(activeClassId ? { class_id: Number(activeClassId) } : {}),
+              date: new Date().toISOString().slice(0, 10),
+            }),
+          });
+
+          closeComposer();
+
+          const results = result.results || [];
+          const successCount = results.filter((r) => r.ok).length;
+          const failCount = results.length - successCount;
+
+          const content = document.getElementById("resultContent");
+          content.innerHTML = `
+          <div class="rounded-xl p-3 border ${
+            failCount === 0
+              ? "bg-jade-soft border-jade/30"
+              : successCount === 0
+                ? "bg-red-50 border-red-200"
+                : "bg-gold-soft border-gold/30"
+          }">
+            <p class="text-[12px] font-semibold text-ink">${esc(result.message || "")}</p>
+            <div class="flex items-center gap-3 mt-1.5 text-[11px]">
+              ${successCount ? `<span class="text-jade font-semibold">✓ ជោគជ័យ ${successCount}</span>` : ""}
+              ${failCount ? `<span class="text-red-600 font-semibold">✗ បរាជ័យ ${failCount}</span>` : ""}
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            ${results
+              .map(
+                (r) => `
+              <div class="p-2.5 rounded-lg border text-[11px] flex items-center justify-between gap-2 ${
+                r.ok
+                  ? "bg-jade-soft border-jade/20"
+                  : "bg-red-50 border-red-200"
+              }">
+                <span class="font-semibold text-ink truncate">${esc(r.student)}</span>
+                <span class="shrink-0 font-semibold ${r.ok ? "text-jade" : "text-red-600"}">
+                  ${r.ok ? "✓" : `✗ ${esc(r.error || "")}`}
+                </span>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        `;
+          document.getElementById("resultModal").classList.remove("hidden");
+          document.getElementById("resultModal").classList.add("flex");
+
+          // Clear selection after success
+          selectedIds.clear();
+          renderStudents();
+          updateFab();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      }
+
+      function closeResultModal() {
+        const m = document.getElementById("resultModal");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      /* ========================================================
+       EVENT BINDINGS
+    ======================================================== */
+      document.getElementById("searchStudent").addEventListener("input", () => {
+        renderStudents();
+        updateFab();
+      });
+      document
+        .getElementById("btnSelectAll")
+        .addEventListener("click", toggleSelectAll);
+      document
+        .getElementById("messageTemplate")
+        .addEventListener("change", (e) => {
+          const t = messageTemplates.find(
+            (x) => String(x.id) === e.target.value,
+          );
+          if (t)
+            document.getElementById("messageContent").value = t.content || "";
+        });
+
+      /* ========================================================
+       INIT
+    ======================================================== */
+      (async () => {
+        if (PUBLIC_MODE) {
+          try {
+            await loadPublicClassView();
+          } catch (err) {
+            document.getElementById("tgBar").hidden = true;
+            document.getElementById("searchStudent").closest("section").hidden = true;
+            document.getElementById("btnSelectAll").hidden = true;
+            document.getElementById("fab").hidden = true;
+            document.getElementById("classChips").innerHTML =
+              '<span class="chip">មិនអាចបង្ហាញព័ត៌មានថ្នាក់បានទេ</span>';
+            document.getElementById("studentList").innerHTML = `
+              <div class="rounded-2xl bg-white border border-line p-5 text-center shadow-card">
+                <p class="text-[12px] text-muted">${esc(err.message)}</p>
+              </div>
+            `;
+          }
+          return;
+        }
+        try {
+          await Promise.all([loadClasses(), loadTemplates(), loadTgStatus()]);
+          await loadStudents();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>កំណត់ Telegram - {{ inst.institution_name }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Moul&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: { DEFAULT: "#7A1F1F", dark: "#4B0D12" },
+            gold: { DEFAULT: "#C9A227" },
+            jade: { DEFAULT: "#0F6B5C", dark: "#0A4F44", soft: "#EAF5F2" },
+            line: "#E7E1D7", canvas: "#F6F4F0",
+          },
+          fontFamily: { khmer: ['"Kantumruy Pro"', "sans-serif"], moul: ['"Moul"', "serif"] },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Kantumruy Pro", sans-serif; background: #F6F4F0; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <header class="sticky top-0 z-40 text-white" style="background:linear-gradient(120deg,#4B0D12,#7A1F1F,#4B0D12)">
+    <div class="mx-auto max-w-2xl px-4 h-14 flex items-center justify-between">
+      <h1 class="font-moul text-sm">កំណត់ Telegram</h1>
+      <div class="flex gap-2">
+        <a href="/manage/{{ inst.inst_username }}/students" class="text-xs bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg">សិស្ស</a>
+        <a href="/manage/{{ inst.inst_username }}/dashboard" class="text-xs bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg">← ត្រឡប់</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-2xl px-4 py-6 space-y-5">
+
+    <!-- Status -->
+    <div class="bg-white rounded-xl border border-line p-5 shadow-sm">
+      <h2 class="font-moul text-base text-maroon mb-3">ស្ថានភាពភ្ជាប់</h2>
+      <div id="statusBox" class="text-sm text-gray-600">កំពុងពិនិត្យ...</div>
+    </div>
+
+    <!-- Config -->
+    <div class="bg-white rounded-xl border border-line p-5 shadow-sm space-y-4">
+      <h2 class="font-moul text-base text-maroon">ការកំណត់ API</h2>
+      <p class="text-xs text-gray-500">ទាញ API ID និង API Hash ពី <a href="https://my.telegram.org" target="_blank" class="text-jade underline">my.telegram.org</a></p>
+
+      <div>
+        <label class="block text-xs font-semibold mb-1">API ID</label>
+        <input id="apiId" type="text" class="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-jade/30" placeholder="12345678">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">API Hash</label>
+        <input id="apiHash" type="text" class="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-jade/30" placeholder="abcdef...">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">លេខទូរសព្ទ (ជាមួយ +855...)</label>
+        <input id="phone" type="text" class="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-jade/30" placeholder="+85512xxxxxx">
+      </div>
+      <button onclick="saveConfig()" class="w-full bg-jade text-white font-bold py-2.5 rounded-lg hover:bg-jade-dark transition">រក្សាទុកការកំណត់</button>
+    </div>
+
+    <!-- Login steps -->
+    <div class="bg-white rounded-xl border border-line p-5 shadow-sm space-y-4">
+      <h2 class="font-moul text-base text-maroon">ភ្ជាប់ Account</h2>
+      <button onclick="sendCode()" id="btnSendCode" class="w-full bg-gold text-maroon-dark font-bold py-2.5 rounded-lg hover:brightness-105 transition">
+        ១. ផ្ញើលេខកូដទៅលេខទូរសព្ទ
+      </button>
+
+      <div id="codeSection" class="hidden space-y-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1">លេខកូដពី Telegram</label>
+          <input id="code" type="text" class="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-jade/30" placeholder="12345">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1">ពាក្យសម្ងាត់ 2FA (បើមាន)</label>
+          <input id="password2fa" type="password" class="w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-jade/30" placeholder="ជម្រើស">
+        </div>
+        <button onclick="verifyCode()" id="btnVerify" class="w-full bg-maroon text-white font-bold py-2.5 rounded-lg hover:bg-maroon-dark transition">
+          ២. ផ្ទៀងផ្ទាត់ និងភ្ជាប់
+        </button>
+      </div>
+
+      <button onclick="disconnect()" id="btnDisconnect" class="hidden w-full border border-red-400 text-red-600 font-semibold py-2.5 rounded-lg hover:bg-red-50 transition">
+        ផ្តាច់ Telegram
+      </button>
+    </div>
+
+    <!-- Templates shortcut -->
+    <div class="bg-white rounded-xl border border-line p-5 shadow-sm">
+      <h2 class="font-moul text-base text-maroon mb-2">Template សារ</h2>
+      <p class="text-xs text-gray-500 mb-3">កែសារដែលនឹងផ្ញើទៅអាណាព្យាបាល</p>
+      <div id="templateList" class="space-y-2 text-sm"></div>
+      <button onclick="showAddTemplate()" class="mt-3 text-xs text-jade font-semibold hover:underline">+ បន្ថែម Template ថ្មី</button>
+    </div>
+  </main>
+
+  <!-- Template Edit Modal -->
+  <div id="tplModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/60" onclick="closeTplModal()"></div>
+    <div class="relative h-full flex items-center justify-center p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-5 space-y-3">
+        <h3 class="font-moul text-maroon" id="tplModalTitle">Template</h3>
+        <input type="hidden" id="tplId">
+        <div>
+          <label class="text-xs font-semibold">ឈ្មោះ</label>
+          <input id="tplName" class="w-full border border-line rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:ring-2 focus:ring-jade/30">
+        </div>
+        <div>
+          <label class="text-xs font-semibold">ខ្លឹមសារសារ</label>
+          <textarea id="tplContent" rows="6" class="w-full border border-line rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:ring-2 focus:ring-jade/30"
+            placeholder="{student_name} {class_name} {subject} {start_time} {end_time} {date}"></textarea>
+          <p class="text-[10px] text-gray-400 mt-1">Placeholder: {student_name}, {class_name}, {subject}, {start_time}, {end_time}, {date}, {note}</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="saveTemplate()" class="flex-1 bg-jade text-white font-bold py-2 rounded-lg">រក្សាទុក</button>
+          <button onclick="closeTplModal()" class="px-4 border border-line rounded-lg">បោះបង់</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-[60] hidden">
+    <div id="toastBox" class="bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg text-sm"></div>
+  </div>
+
+  <script>
+    const USERNAME = "{{ inst.inst_username }}";
+
+    function toast(msg, type = "info") {
+      const el = document.getElementById("toast");
+      const box = document.getElementById("toastBox");
+      box.className = `text-white px-4 py-3 rounded-lg shadow-lg text-sm ${type === "success" ? "bg-green-600" : type === "error" ? "bg-red-600" : "bg-gray-800"}`;
+      box.textContent = msg;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 3500);
+    }
+
+    async function api(url, opts = {}) {
+      const r = await fetch(url, opts);
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || data.detail || "មានបញ្ហា");
+      return data;
+    }
+
+    async function loadStatus() {
+      try {
+        const res = await api(`/api/manage/${USERNAME}/telegram/status`);
+        const box = document.getElementById("statusBox");
+        if (res.connected) {
+          box.innerHTML = `<span class="text-jade font-bold">● ភ្ជាប់រួច</span> — ${res.account_name || res.phone}`;
+          document.getElementById("btnDisconnect").classList.remove("hidden");
+          document.getElementById("btnSendCode").classList.add("hidden");
+        } else {
+          box.innerHTML = `<span class="text-red-500 font-bold">● មិនទាន់ភ្ជាប់</span>`;
+          document.getElementById("btnDisconnect").classList.add("hidden");
+          document.getElementById("btnSendCode").classList.remove("hidden");
+        }
+      } catch (e) {
+        document.getElementById("statusBox").textContent = e.message;
+      }
+    }
+
+    async function saveConfig() {
+      const fd = new FormData();
+      fd.append("api_id", document.getElementById("apiId").value.trim());
+      fd.append("api_hash", document.getElementById("apiHash").value.trim());
+      fd.append("phone", document.getElementById("phone").value.trim());
+      try {
+        const res = await api(`/api/manage/${USERNAME}/telegram/config`, { method: "POST", body: fd });
+        toast(res.message, "success");
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+
+    async function sendCode() {
+      const btn = document.getElementById("btnSendCode");
+      btn.disabled = true;
+      btn.textContent = "កំពុងផ្ញើ...";
+      try {
+        const res = await api(`/api/manage/${USERNAME}/telegram/send_code`, { method: "POST" });
+        toast(res.message, "success");
+        if (res.need_code) {
+          document.getElementById("codeSection").classList.remove("hidden");
+        }
+        if (res.connected) await loadStatus();
+      } catch (e) {
+        toast(e.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "១. ផ្ញើលេខកូដទៅលេខទូរសព្ទ";
+      }
+    }
+
+    async function verifyCode() {
+      const fd = new FormData();
+      fd.append("code", document.getElementById("code").value.trim());
+      fd.append("password", document.getElementById("password2fa").value);
+      const btn = document.getElementById("btnVerify");
+      btn.disabled = true;
+      try {
+        const res = await api(`/api/manage/${USERNAME}/telegram/verify`, { method: "POST", body: fd });
+        toast(res.message, "success");
+        document.getElementById("codeSection").classList.add("hidden");
+        await loadStatus();
+      } catch (e) {
+        toast(e.message, "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function disconnect() {
+      if (!confirm("តើអ្នកពិតជាចង់ផ្តាច់ Telegram មែនទេ?")) return;
+      try {
+        const res = await api(`/api/manage/${USERNAME}/telegram/disconnect`, { method: "POST" });
+        toast(res.message, "success");
+        await loadStatus();
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+
+    // Templates
+    async function loadTemplates() {
+      const res = await api(`/api/manage/${USERNAME}/templates`);
+      const list = document.getElementById("templateList");
+      list.innerHTML = (res.templates || []).map(t => `
+        <div class="flex items-center justify-between border border-line rounded-lg px-3 py-2">
+          <div>
+            <p class="font-semibold text-sm">${t.name}</p>
+            <p class="text-[11px] text-gray-400 truncate max-w-[280px]">${t.content.slice(0, 60)}...</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick='editTpl(${JSON.stringify(t)})' class="text-xs text-jade font-semibold">កែ</button>
+            <button onclick="deleteTpl(${t.id})" class="text-xs text-red-500 font-semibold">លុប</button>
+          </div>
+        </div>
+      `).join("") || '<p class="text-gray-400 text-sm">មិនទាន់មាន template</p>';
+    }
+
+    function showAddTemplate() {
+      document.getElementById("tplId").value = "";
+      document.getElementById("tplName").value = "";
+      document.getElementById("tplContent").value = "";
+      document.getElementById("tplModalTitle").textContent = "បន្ថែម Template";
+      document.getElementById("tplModal").classList.remove("hidden");
+    }
+
+    function editTpl(t) {
+      document.getElementById("tplId").value = t.id;
+      document.getElementById("tplName").value = t.name;
+      document.getElementById("tplContent").value = t.content;
+      document.getElementById("tplModalTitle").textContent = "កែ Template";
+      document.getElementById("tplModal").classList.remove("hidden");
+    }
+
+    function closeTplModal() {
+      document.getElementById("tplModal").classList.add("hidden");
+    }
+
+    async function saveTemplate() {
+      const id = document.getElementById("tplId").value;
+      const fd = new FormData();
+      fd.append("name", document.getElementById("tplName").value.trim());
+      fd.append("content", document.getElementById("tplContent").value.trim());
+      try {
+        if (id) {
+          await api(`/api/manage/${USERNAME}/templates/${id}`, { method: "PUT", body: fd });
+        } else {
+          await api(`/api/manage/${USERNAME}/templates`, { method: "POST", body: fd });
+        }
+        toast("រក្សាទុក template បានជោគជ័យ", "success");
+        closeTplModal();
+        await loadTemplates();
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+
+    async function deleteTpl(id) {
+      if (!confirm("លុប template នេះ?")) return;
+      try {
+        await api(`/api/manage/${USERNAME}/templates/${id}`, { method: "DELETE" });
+        toast("លុបបានជោគជ័យ", "success");
+        await loadTemplates();
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+
+    loadStatus();
+    loadTemplates();
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ចូលប្រព័ន្ធគ្រប់គ្រង — Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&family=Moul&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        khmer: {
+                            gold: '#D4AF37',
+                            maroon: '#7B1E1E',
+                            maroondark: '#5A1414',
+                            cream: '#FDF8F0',
+                        }
+                    },
+                    fontFamily: {
+                        khmer: ['"Kantumruy Pro"', 'sans-serif'],
+                        moul: ['Moul', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: #FDF8F0;
+            background-image: radial-gradient(circle at 1px 1px, rgba(212,175,55,.18) 1px, transparent 0);
+            background-size: 22px 22px;
+        }
+        @keyframes floatIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .float-in { animation: floatIn .5s cubic-bezier(.22,.9,.35,1) both; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200 float-in">
+        <div class="flex flex-col items-center mb-6">
+            <div class="w-14 h-14 mb-3 rounded-xl bg-gradient-to-br from-khmer-gold to-yellow-700 flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2 9.5 5.5h5L12 2Zm0 4.5c-1.6 1.4-2.4 3-2.4 4.7V10h-1v-1H7v1H5.5v9h13v-9H17v-1h-1.6v1h-1v-2.8c0-1.7-.8-3.3-2.4-4.7Zm-3 8h6v6.5h-6V14.5Z"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-moul text-khmer-maroon text-center">ប្រព័ន្ធគ្រប់គ្រងរដ្ឋបាល</h2>
+            <p class="text-xs text-gray-500 mt-1 uppercase tracking-wider">Admin Control Panel</p>
+        </div>
+
+        {% if error %}
+        <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-5 text-sm text-center font-medium">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/login" method="POST" class="space-y-5" autocomplete="on">
+            <div>
+                <label class="block text-gray-700 text-sm font-semibold mb-1.5">ឈ្មោះអ្នកប្រើប្រាស់ (Username)</label>
+                <input type="text" name="username" required autofocus
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-khmer-gold focus:border-khmer-gold bg-gray-50 transition text-sm">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-semibold mb-1.5">ពាក្យសម្ងាត់ (Password)</label>
+                <input type="password" name="password" required
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-khmer-gold focus:border-khmer-gold bg-gray-50 transition text-sm">
+            </div>
+            <button type="submit"
+                    class="w-full bg-gradient-to-r from-khmer-maroondark to-khmer-maroon text-white font-bold py-3 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition duration-200">
+                ចូលប្រព័ន្ធ
+            </button>
+        </form>
+    </div>
+</body>
+</html>
