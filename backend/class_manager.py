@@ -4,6 +4,7 @@ class_manager.py
 គ្រប់គ្រង Class, TimeSlot, Student, Message Template, Telegram Session
 សម្រាប់ប្រព័ន្ធគ្រប់គ្រងស្ថាប័ន + ផ្ញើសារ Telegram (Telethon)
 គាំទ្រ Batch Import សិស្ស និងទទួលគ្រប់ទម្រង់ Telegram (Phone, Link, Username, ID)
+ភ្ជាប់ជាមួយ Supabase Cloud Database ដោយស្វ័យប្រវត្តិ
 """
 
 from __future__ import annotations
@@ -18,6 +19,8 @@ from typing import Any, Callable, Optional
 
 from fastapi import APIRouter, Form, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+
+from db_supabase import load_data, save_data, is_supabase_enabled, delete_prefix_data
 
 # ============================================================
 # Paths
@@ -61,7 +64,7 @@ def require_inst_password(username: str, password: str) -> None:
 
 
 # ============================================================
-# Data helpers (per-institution JSON files)
+# Data helpers (Supabase + Local JSON fallback)
 # ============================================================
 def _inst_dir(username: str) -> Path:
     d = DATA_DIR / username
@@ -70,22 +73,42 @@ def _inst_dir(username: str) -> Path:
 
 
 def _load(username: str, name: str, default: Any = None) -> Any:
+    storage_key = f"{username}:{name}"
+    if is_supabase_enabled():
+        val = load_data(storage_key, default=None)
+        if val is not None:
+            return val
+
+    # Fallback to local JSON file
     path = _inst_dir(username) / f"{name}.json"
     if not path.exists():
         return default if default is not None else []
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            # Auto-migrate local JSON file to Supabase
+            if is_supabase_enabled() and data:
+                save_data(storage_key, data)
+            return data
     except (json.JSONDecodeError, OSError):
         return default if default is not None else []
 
 
 def _save(username: str, name: str, data: Any) -> None:
-    path = _inst_dir(username) / f"{name}.json"
-    tmp = path.with_suffix(".json.tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    tmp.replace(path)
+    storage_key = f"{username}:{name}"
+    # 1. Save directly to Supabase Cloud
+    if is_supabase_enabled():
+        save_data(storage_key, data)
+
+    # 2. Keep local backup copy
+    try:
+        path = _inst_dir(username) / f"{name}.json"
+        tmp = path.with_suffix(".json.tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        tmp.replace(path)
+    except Exception:
+        pass
 
 
 def _next_id(items: list) -> int:
@@ -181,6 +204,10 @@ def _telegram_contact_candidates(contact: str) -> list[dict]:
 # ============================================================
 async def delete_institution_data(username: str) -> None:
     import shutil
+    # Delete from Supabase
+    if is_supabase_enabled():
+        delete_prefix_data(f"{username}:")
+        
     d = DATA_DIR / username
     if d.exists():
         shutil.rmtree(d, ignore_errors=True)
@@ -200,7 +227,6 @@ public_router = APIRouter(prefix="/api/public", tags=["public"])
 
 @public_router.get("/{username}/classes/{class_id}/students")
 async def get_public_class_students(response: Response, username: str, class_id: int):
-    """Return the names and message templates for one publicly accessible class."""
     response.headers["Cache-Control"] = "no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
     class_info = next(
@@ -229,7 +255,6 @@ async def get_public_class_students(response: Response, username: str, class_id:
 
 @public_router.post("/{username}/classes/{class_id}/send")
 async def send_public_class_messages(request: Request, response: Response, username: str, class_id: int):
-    """Send a message to selected guardians in one class from its public page."""
     response.headers["Cache-Control"] = "no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
     body = await request.json()
@@ -330,7 +355,6 @@ async def list_classes(request: Request, username: str):
 
 
 def get_public_dashboard_data(username: str) -> dict:
-    """Return only school schedule data and aggregate class student counts."""
     subjects = _load(username, "subjects", [])
     classes = _load(username, "classes", [])
     students = _load(username, "students", [])
@@ -604,9 +628,6 @@ async def batch_create_students(
     request: Request,
     username: str,
 ):
-    """
-    បញ្ចូលសិស្សជាកញ្ចប់ (Import from Excel / Multiple Students)
-    """
     if require_inst(request) != username:
         raise HTTPException(403, "Forbidden")
 
@@ -791,11 +812,20 @@ def _tg_config_path(username: str) -> Path:
 
 
 def _load_tg(username: str) -> dict:
+    storage_key = f"{username}:telegram"
+    if is_supabase_enabled():
+        val = load_data(storage_key, default=None)
+        if val is not None and isinstance(val, dict):
+            return val
+
     path = _tg_config_path(username)
     if path.exists():
         try:
             with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if is_supabase_enabled() and data:
+                    save_data(storage_key, data)
+                return data
         except Exception:
             pass
     return {
@@ -809,6 +839,10 @@ def _load_tg(username: str) -> dict:
 
 
 def _save_tg(username: str, data: dict) -> None:
+    storage_key = f"{username}:telegram"
+    if is_supabase_enabled():
+        save_data(storage_key, data)
+
     path = _tg_config_path(username)
     tmp = path.with_suffix(".json.tmp")
     with open(tmp, "w", encoding="utf-8") as f:
