@@ -1,0 +1,168 @@
+[
+  {
+    "id": 3,
+    "student_name": "ចាន់ ធីតា",
+    "phone": "@chan_thida_parent",
+    "class_id": 1,
+    "note": "",
+    "created_at": "2026-10-13T19:50:55.621988",
+    "slot_ids": [
+      1
+    ]
+  },
+  {
+    "id": 5,
+    "student_name": "កែវ សុភា",
+    "phone": "1234567890",
+    "class_id": 1,
+    "note": "Telegram ID សុទ្ធ",
+    "created_at": "2026-10-13T19:50:55.622028",
+    "slot_ids": [
+      1
+    ]
+  },
+  {
+    "id": 6,
+    "student_name": "សុខ វិសាល",
+    "phone": "012345678",
+    "class_id": 1,
+    "note": "សិស្សពូកែ",
+    "created_at": "2026-10-20T19:38:20.663539"
+  },
+  {
+    "id": 7,
+    "student_name": "ចាន់ ធីតា",
+    "phone": "@chan_thida_parent",
+    "class_id": 1,
+    "note": "",
+    "created_at": "2026-10-20T19:38:20.663665"
+  },
+  {
+    "id": 8,
+    "student_name": "ហេង ដារ៉ា",
+    "phone": "https://t.me/heng_dara",
+    "class_id": 1,
+    "note": "សុំអនុញ្ញាតថ្ងៃចន្ទ",
+    "created_at": "2026-10-20T19:38:20.663735"
+  },
+  {
+    "id": 9,
+    "student_name": "កែវ សុភា",
+    "phone": "1234567890",
+    "class_id": 1,
+    "note": "Telegram ID សុទ្ធ",
+    "created_at": "2026-10-20T19:38:20.663786"
+  },
+  {
+    "id": 10,
+    "student_name": "សុខ វិសាល",
+    "phone": "012345678",
+    "class_id": 1,
+    "note": "សិស្សពូកែ",
+    "created_at": "2026-10-20T19:38:34.376935"
+  },
+  {
+    "id": 11,
+    "student_name": "ចាន់ ធីតា",
+    "phone": "@chan_thida_parent",
+    "class_id": 1,
+    "note": "",
+    "created_at": "2026-10-20T19:38:34.376995"
+  },
+  {
+    "id": 12,
+    "student_name": "ហេង ដារ៉ា",
+    "phone": "https://t.me/heng_dara",
+    "class_id": 1,
+    "note": "សុំអនុញ្ញាតថ្ងៃចន្ទ",
+    "created_at": "2026-10-20T19:38:34.377029"
+  },
+  {
+    "id": 13,
+    "student_name": "កែវ សុភា",
+    "phone": "1234567890",
+    "class_id": 1,
+    "note": "Telegram ID សុទ្ធ",
+    "created_at": "2026-10-20T19:38:34.377056"
+  },
+  {
+    "id": 14,
+    "student_name": "សុខ វិសាល",
+    "phone": "012345678",
+    "class_id": 1,
+    "note": "សិស្សពូកែ",
+    "created_at": "2026-10-20T19:43:03.745538"
+  },
+  {
+    "id": 15,
+    "student_name": "ចាន់ ធីតា",
+    "phone": "@chan_thida_parent",
+    "class_id": 1,
+    "note": "",
+    "created_at": "2026-10-20T19:43:03.745567"
+  },
+  {
+    "id": 16,
+    "student_name": "ហេង ដារ៉ា",
+    "phone": "https://t.me/heng_dara",
+    "class_id": 1,
+    "note": "សុំអនុញ្ញាតថ្ងៃចន្ទ",
+    "created_at": "2026-10-20T19:43:03.745582"
+  },
+  {
+    "id": 17,
+    "student_name": "កែវ សុភា",
+    "phone": "1234567890",
+    "class_id": 1,
+    "note": "Telegram ID សុទ្ធ",
+    "created_at": "2026-10-20T19:43:03.745595"
+  },
+  {
+    "id": 18,
+    "student_name": "សុខ វិសាល",
+    "phone": "0966056359",
+    "class_id": 4,
+    "note": "សិស្សពូកែ",
+    "created_at": "2026-10-20T19:57:17.795057"
+  },
+  {
+    "id": 19,
+    "student_name": "ចាន់ ធីតា",
+    "phone": "@chan_thida_parent",
+    "class_id": 4,
+    "note": "",
+    "created_at": "2026-10-20T19:57:17.795162"
+  },
+  {
+    "id": 20,
+    "student_name": "ហេង ដារ៉ា",
+    "phone": "https://t.me/heng_dara",
+    "class_id": 4,
+    "note": "សុំអនុញ្ញាតថ្ងៃចន្ទ",
+    "created_at": "2026-10-20T19:57:17.795220"
+  },
+  {
+    "id": 21,
+    "student_name": "កែវ សុភា",
+    "phone": "1234567890",
+    "class_id": 4,
+    "note": "Telegram ID សុទ្ធ",
+    "created_at": "2026-10-20T19:57:17.795270"
+  },
+  {
+    "id": 22,
+    "student_name": "Socheta",
+    "phone": "@Boono_onoo",
+    "class_id": 5,
+    "note": "",
+    "created_at": "2026-10-21T09:27:36.253073"
+  },
+  {
+    "id": 23,
+    "student_name": "vathana",
+    "phone": "@Homgji",
+    "class_id": 5,
+    "note": "",
+    "created_at": "2026-10-21T09:35:16.504009"
+  }
+]
