@@ -1,17 +1,27 @@
-# ប្រព័ន្ធគ្រប់គ្រងស្ថាប័ន — បំបែក Backend និង Frontend
+# Backend API — Institution Management
 
-សំណុំឯកសារនេះត្រូវបានបំបែកជាសេវាកម្មពីរដាច់ដោយឡែក៖
+This folder is the API/data service. It does not serve HTML pages. The frontend service calls it via `BACKEND_URL` and proxies browser `/api/*` and `/static/*` requests.
 
-- **`backend/`** — FastAPI API, Login/Auth, ការគ្រប់គ្រងទិន្នន័យស្ថាប័ន/សិស្ស, Telegram, រូបភាព និងឯកសារទិន្នន័យ។
-- **`frontend/`** — ទំព័រ HTML/Jinja ភាសាខ្មែរ និង UI server ដែលបញ្ជូន `/api/*` និង `/static/*` ទៅ Backend ដោយស្វ័យប្រវត្តិ។
+## Local run (Windows PowerShell)
 
-## របៀបដាក់លើ Hosting ពីរ
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:ADMIN_USERNAME = "your_admin_name"
+$env:ADMIN_PASSWORD = "use_a_long_unique_password"
+$env:INSTITUTION_PASSWORD_ENCRYPTION_KEY = "your_existing_fernet_key"
+python -m uvicorn main:app --host 0.0.0.0 --port 8001
+```
 
-### ១. ដាក់ Backend
+Health check: `http://127.0.0.1:8001/api/health`
 
-Deploy ថត `backend/` ជា Python Web Service។
+Uploaded raster images are resized to fit within 1200 × 1200 pixels and converted to WebP at quality 80 when that produces a smaller file. Animated GIFs and SVG images are kept unchanged. The backend installs Pillow from `requirements.txt`.
 
-Build command:
+## Hosting setup
+
+Deploy this folder as a Python web service. Build command:
 
 ```bash
 pip install -r requirements.txt
@@ -23,47 +33,17 @@ Start command:
 uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
-កំណត់ Environment Variables / Secrets នៅលើ hosting៖
+Set these environment variables in the hosting provider's Secrets/Environment section:
 
-- `ADMIN_USERNAME` — ឈ្មោះ Admin
-- `ADMIN_PASSWORD` — ពាក្យសម្ងាត់ Admin ដែលខ្លាំង
-- `INSTITUTION_PASSWORD_ENCRYPTION_KEY` — Fernet key ត្រឹមត្រូវ; ប្រសិនបើមាន password ដែលបាន encrypt រួច ត្រូវប្រើ key ចាស់ដដែល
-- `DATA_DIR=/var/data/data`
-- `SESSIONS_DIR=/var/data/sessions`
-- `UPLOAD_DIR=/var/data/uploads`
+- `ADMIN_USERNAME` — admin login name.
+- `ADMIN_PASSWORD` — strong admin password. There is no default `admin/111` login.
+- `INSTITUTION_PASSWORD_ENCRYPTION_KEY` — valid Fernet key. Keep the original key if existing passwords were encrypted with it.
+- For a persistent disk mounted at `/var/data`: `DATA_DIR=/var/data/data`, `SESSIONS_DIR=/var/data/sessions`, `UPLOAD_DIR=/var/data/uploads`.
 
-ភ្ជាប់ **Persistent Disk** ទៅកាន់ `/var/data` ដើម្បីរក្សាទុក database, រូបភាព និង Telegram session កុំឱ្យបាត់ពេល redeploy។ សេវា Backend គួរប្រើ instance តែមួយ ព្រោះ login sessions នៅក្នុង memory។
+The first run copies bundled data/session/upload files to the configured persistent directories only when the destination file does not already exist. Keep the persistent disk attached on redeploys. Use **one backend instance** unless sessions are moved to a shared store; login sessions currently live in memory.
 
-Health check៖ `https://YOUR-BACKEND-URL/api/health`
+## Security
 
-### ២. ដាក់ Frontend
-
-Deploy ថត `frontend/` ជា Python Web Service មួយទៀត ដាច់ពី Backend។
-
-Build command:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start command:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-កំណត់ Environment Variable៖
-
-```text
-BACKEND_URL=https://YOUR-BACKEND-URL
-```
-
-`BACKEND_URL` ត្រូវជាអាសយដ្ឋានសាធារណៈរបស់ Backend ហើយកុំដាក់ `/` នៅខាងចុង។ បន្ទាប់មក អ្នកប្រើប្រាស់ចូលតាម **Frontend URL** មិនមែន Backend URL ទេ។
-
-> ចំណាំ៖ Frontend នៅតែប្រើ Jinja templates ពីគម្រោងដើម ដូច្នេះវាជា Python Web Service មិនមែន static HTML សម្រាប់ដាក់លើ Vercel ដោយផ្ទាល់ទេ។ វាបំបែក UI server និង API server ដាច់ពីគ្នា ដោយមិនចាំបាច់សរសេរទំព័រទាំងអស់ឡើងវិញ។
-
-## សុវត្ថិភាពឯកសារ
-
-Backend ZIP រក្សាទុកទិន្នន័យដើមដែលមានព័ត៌មានសិស្ស/លេខទូរសព្ទ និង Telegram session credential ដើម្បីរក្សាដំណើរការដែលមានស្រាប់។ **កុំ upload ZIP នេះទៅ GitHub public ឬផ្ញើឱ្យអ្នកដទៃ**។ Frontend ZIP មិនមាន database ឬ Telegram session ទេ។
-
-កូដ Backend ត្រូវបានកែឱ្យអាន `ADMIN_USERNAME` និង `ADMIN_PASSWORD` ពី Environment Variables ហើយមិនប្រើ default `admin/111` ទៀតទេ។ សូមកំណត់ secrets មុន deploy។
+- Do not upload this folder or its data/session files to a public Git repository.
+- `data/` contains institution/student contact data and Telegram configuration. `sessions/*.session` contains Telegram authorization credentials; treat it like a password.
+- Do not share `.env` values. Keep API credentials and encryption keys in hosting secrets, never in frontend code.
